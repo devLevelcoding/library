@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SHOP — Landing Page</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #111111;
+      --white: #ffffff;
+      --gray-100: #f4f4f5;
+      --gray-200: #e4e4e7;
+      --gray-400: #a1a1aa;
+      --gray-600: #52525b;
+      --gray-800: #27272a;
+      --accent: #111111;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--black);
+      background: var(--white);
+    }
+
+    /* ── NAVBAR ─────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 max(24px, calc((100% - 1200px) / 2));
+      gap: 32px;
+    }
+
+    .nav-logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      color: var(--black);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+      flex: 1;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--gray-600);
+      font-size: 0.875rem;
+      transition: color .15s;
+    }
+
+    .nav-links a:hover { color: var(--black); }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--black);
+      text-decoration: none;
+      transition: background .15s, border-color .15s;
+    }
+
+    .btn-nav:hover { background: var(--gray-100); }
+
+    .btn-nav.primary {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    .btn-nav.primary:hover { background: var(--gray-800); }
+
+    /* cart badge */
+    .cart-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      cursor: pointer;
+    }
+
+    .cart-icon svg { width: 20px; height: 20px; }
+
+    .cart-badge {
+      position: absolute;
+      top: 0; right: 0;
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.6rem;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 16px; height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── HERO / BILLBOARD ────────────────────────────── */
+    .hero {
+      margin-top: 64px;
+      min-height: 420px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, rgba(99,102,241,.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 20% 80%, rgba(236,72,153,.15) 0%, transparent 50%);
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.8);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,.15);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+      max-width: 680px;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      color: rgba(255,255,255,.65);
+      font-size: 1.1rem;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      color: var(--black);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    }
+
+    .hero-cta svg { width: 18px; height: 18px; }
+
+    /* ── CONTAINER ───────────────────────────────────── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── SECTION HEADING ─────────────────────────────── */
+    .section {
+      padding: 64px 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--black);
+    }
+
+    .section-sub {
+      font-size: 0.875rem;
+      color: var(--gray-400);
+      margin-top: 4px;
+    }
+
+    .view-all {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      text-decoration: none;
+      border-bottom: 1px solid var(--gray-200);
+      padding-bottom: 2px;
+      transition: color .15s;
+    }
+
+    .view-all:hover { color: var(--black); border-color: var(--black); }
+
+    /* ── PRODUCT GRID ────────────────────────────────── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .product-card {
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: box-shadow .2s, transform .2s;
+      cursor: pointer;
+      background: var(--white);
+    }
+
+    .product-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,.1);
+      transform: translateY(-3px);
+    }
+
+    .product-image {
+      aspect-ratio: 1;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* coloured placeholder images */
+    .product-card:nth-child(1) .product-image { background: linear-gradient(135deg, #fde68a, #fbbf24); }
+    .product-card:nth-child(2) .product-image { background: linear-gradient(135deg, #a5f3fc, #38bdf8); }
+    .product-card:nth-child(3) .product-image { background: linear-gradient(135deg, #d9f99d, #86efac); }
+    .product-card:nth-child(4) .product-image { background: linear-gradient(135deg, #fecdd3, #fb7185); }
+    .product-card:nth-child(5) .product-image { background: linear-gradient(135deg, #e0d7ff, #a78bfa); }
+    .product-card:nth-child(6) .product-image { background: linear-gradient(135deg, #fed7aa, #fb923c); }
+    .product-card:nth-child(7) .product-image { background: linear-gradient(135deg, #ccfbf1, #2dd4bf); }
+    .product-card:nth-child(8) .product-image { background: linear-gradient(135deg, #f5d0fe, #e879f9); }
+
+    .product-image-icon {
+      opacity: .35;
+      width: 64px; height: 64px;
+    }
+
+    .product-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.04);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 20px;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .product-card:hover .product-overlay { opacity: 1; }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      color: var(--black);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .btn-add:hover { background: var(--gray-100); }
+    .btn-add svg { width: 15px; height: 15px; }
+
+    .product-info { padding: 14px 16px; }
+
+    .product-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--black);
+      margin-bottom: 2px;
+    }
+
+    .product-category {
+      font-size: 0.8rem;
+      color: var(--gray-400);
+      margin-bottom: 10px;
+    }
+
+    .product-price {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    /* ── CATEGORIES STRIP ────────────────────────────── */
+    .categories-strip {
+      padding: 48px 0;
+      background: var(--gray-100);
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+
+    .category-pill {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 100px;
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--gray-600);
+      text-decoration: none;
+      display: block;
+    }
+
+    .category-pill:hover, .category-pill.active {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    /* ── NEWSLETTER ──────────────────────────────────── */
+    .newsletter {
+      background: var(--black);
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .newsletter h2 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+
+    .newsletter p {
+      color: var(--gray-400);
+      margin-bottom: 32px;
+      font-size: 1rem;
+    }
+
+    .newsletter-form {
+      display: flex;
+      max-width: 440px;
+      margin: 0 auto;
+      gap: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.15);
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 14px 18px;
+      background: rgba(255,255,255,.06);
+      border: none;
+      outline: none;
+      color: var(--white);
+      font-size: 0.9rem;
+    }
+
+    .newsletter-input::placeholder { color: var(--gray-400); }
+
+    .newsletter-btn {
+      padding: 14px 22px;
+      background: var(--white);
+      color: var(--black);
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+
+    .newsletter-btn:hover { background: var(--gray-100); }
+
+    .newsletter-status {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      min-height: 20px;
+      transition: color .2s;
+    }
+
+    .newsletter-status.ok { color: #86efac; }
+    .newsletter-status.err { color: #fca5a5; }
+
+    /* ── STATS STRIP ─────────────────────────────────── */
+    .stats {
+      background: var(--gray-100);
+      padding: 48px 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 32px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--gray-200);
+      padding: 40px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-weight: 700;
+      letter-spacing: .08em;
+      font-size: 1rem;
+    }
+
+    .footer-copy {
+      font-size: 0.82rem;
+      color: var(--gray-400);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--gray-400);
+      text-decoration: none;
+      transition: color .15s;
+    }
+
+    .footer-links a:hover { color: var(--black); }
+
+    /* ── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+      .newsletter-form { flex-direction: column; border-radius: 10px; }
+      .newsletter-input { border-radius: 8px 8px 0 0; }
+      .newsletter-btn { border-radius: 0 0 8px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAVBAR ──────────────────────────────────────── -->
+<nav>
+  <a href="/" class="nav-logo">SHOP</a>
+  <ul class="nav-links">
+    <li><a href="#">T-Shirts</a></li>
+    <li><a href="#">Hoodies</a></li>
+    <li><a href="#">Accessories</a></li>
+    <li><a href="#">Sale</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#" class="btn-nav">Sign In</a>
+    <a href="/landing.html" class="btn-nav primary" id="live-link" target="_blank">
+      ↗ Live Project
+    </a>
+    <div class="cart-icon" title="Cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <div class="cart-badge">0</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">New Collection 2024</div>
+    <h1>Style That Speaks<br/>For Itself</h1>
+    <p>Discover premium clothing and accessories curated for the modern wardrobe.</p>
+    <a href="#products" class="hero-cta">
+      Shop Now
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<!-- ── CATEGORIES ───────────────────────────────────── -->
+<div class="categories-strip">
+  <div class="container">
+    <div class="categories-grid">
+      <a class="category-pill active" href="#">All</a>
+      <a class="category-pill" href="#">T-Shirts</a>
+      <a class="category-pill" href="#">Hoodies</a>
+      <a class="category-pill" href="#">Pants</a>
+      <a class="category-pill" href="#">Shoes</a>
+      <a class="category-pill" href="#">Accessories</a>
+      <a class="category-pill" href="#">Sale</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── FEATURED PRODUCTS ─────────────────────────────── -->
+<section class="section" id="products">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-sub">Hand-picked favourites this season</p>
+      </div>
+      <a href="#" class="view-all">View all →</a>
+    </div>
+
+    <div class="products-grid">
+
+      <!-- Card 1 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Classic Tee — Amber</div>
+          <div class="product-category">T-Shirts</div>
+          <div class="product-price">$29.00</div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Sky Hoodie</div>
+          <div class="product-category">Hoodies</div>
+          <div class="product-price">$59.00</div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Fresh Cargo Pants</div>
+          <div class="product-category">Pants</div>
+          <div class="product-price">$79.00</div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Rose Cap</div>
+          <div class="product-category">Accessories</div>
+          <div class="product-price">$24.00</div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Violet Oversized Tee</div>
+          <div class="product-category">T-Shirts</div>
+          <div class="product-price">$34.00</div>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Citrus Sneakers</div>
+          <div class="product-category">Shoes</div>
+          <div class="product-price">$110.00</div>
+        </div>
+      </div>
+
+      <!-- Card 7 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Teal Windbreaker</div>
+          <div class="product-category">Jackets</div>
+          <div class="product-price">$95.00</div>
+        </div>
+      </div>
+
+      <!-- Card 8 -->
+      <div class="product-card">
+        <div class="product-image">
+          <svg class="product-image-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 12 L10 20 L10 52 L54 52 L54 20 L44 12 L32 16 Z"/>
+          </svg>
+          <div class="product-overlay">
+            <button class="btn-add">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-name">Neon Fanny Pack</div>
+          <div class="product-category">Accessories</div>
+          <div class="product-price">$39.00</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ─────────────────────────────────────────── -->
+<div class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div>
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Products</div>
+      </div>
+      <div>
+        <div class="stat-number">12k+</div>
+        <div class="stat-label">Happy Customers</div>
+      </div>
+      <div>
+        <div class="stat-number">Free</div>
+        <div class="stat-label">Shipping over $50</div>
+      </div>
+      <div>
+        <div class="stat-number">30d</div>
+        <div class="stat-label">Easy Returns</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEWSLETTER ─────────────────────────────────────── -->
+<section class="newsletter">
+  <div class="container">
+    <h2>Stay in the loop</h2>
+    <p>Get new arrivals and exclusive deals — no spam, ever.</p>
+    <div class="newsletter-form">
+      <input
+        class="newsletter-input"
+        type="email"
+        id="newsletter-email"
+        placeholder="your@email.com"
+        autocomplete="email"
+      />
+      <button class="newsletter-btn" id="newsletter-btn" onclick="subscribe()">Subscribe</button>
+    </div>
+    <div class="newsletter-status" id="newsletter-status"></div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <span class="footer-logo">SHOP</span>
+    <ul class="footer-links">
+      <li><a href="#">About</a></li>
+      <li><a href="#">Privacy</a></li>
+      <li><a href="#">Terms</a></li>
+      <li><a href="#" id="footer-live-link" target="_blank">Live Project ↗</a></li>
+    </ul>
+    <span class="footer-copy">© 2024 Shop. All rights reserved.</span>
+  </div>
+</footer>
+
+<!-- ── SCRIPT ──────────────────────────────────────────── -->
+<script>
+  // --- live project link ---
+  // Update this URL to your deployed project
+  const LIVE_URL = 'http://localhost:3000';
+  document.getElementById('live-link').href = LIVE_URL;
+  document.getElementById('footer-live-link').href = LIVE_URL;
+
+  // --- category pills ---
+  document.querySelectorAll('.category-pill').forEach(pill => {
+    pill.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // --- newsletter ---
+  async function subscribe() {
+    const emailInput = document.getElementById('newsletter-email');
+    const status = document.getElementById('newsletter-status');
+    const btn = document.getElementById('newsletter-btn');
+    const email = emailInput.value.trim();
+
+    if (!email || !email.includes('@')) {
+      status.textContent = 'Please enter a valid email.';
+      status.className = 'newsletter-status err';
+      return;
+    }
+
+    btn.textContent = 'Subscribing...';
+    btn.disabled = true;
+    status.textContent = '';
+
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        status.textContent = 'You\'re in! Talk soon.';
+        status.className = 'newsletter-status ok';
+        emailInput.value = '';
+        btn.textContent = 'Subscribed ✓';
+      } else {
+        const data = await res.json().catch(() => ({}));
+        status.textContent = data.message || 'Something went wrong. Try again.';
+        status.className = 'newsletter-status err';
+        btn.textContent = 'Subscribe';
+        btn.disabled = false;
+      }
+    } catch {
+      status.textContent = 'Could not connect. Is the server running?';
+      status.className = 'newsletter-status err';
+      btn.textContent = 'Subscribe';
+      btn.disabled = false;
+    }
+  }
+
+  // allow Enter key in input
+  document.getElementById('newsletter-email').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') subscribe();
+  });
+</script>
+
+</body>
+</html>

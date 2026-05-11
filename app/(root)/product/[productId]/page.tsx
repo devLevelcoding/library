@@ -1,0 +1,64 @@
+import React from "react";
+import Gallery from "@/components/gallery/index";
+import Info from "@/components/info";
+import prismadb from "@/lib/prismadb";
+import ProductCard from "@/components/product-card";
+
+interface ProductPageProps {
+    params: {
+        productId: string
+    }
+}
+
+const ProductPage: React.FC<ProductPageProps> = async ({
+    params,
+}) => {
+    const product = await prismadb.product.findUnique({
+        where: {
+            id: params.productId,
+        },
+        include: {
+            images: true,
+            size: true,
+            category: true,
+        }
+    })
+
+    if (!product) return null
+
+    const suggestedProducts = await prismadb.product.findMany({
+        where: {
+            categoryId: product.categoryId,
+            NOT: {
+                id: product.id,
+            }
+        },
+        include: {
+            images: true,
+            size: true,
+            category: true,
+        }
+    })
+
+    return <div className="bg-white">
+            <div className="px-4 py-10 sm:px-6 lg:px-8">
+                <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
+                    <Gallery images={product.images}/>
+                    <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
+                        {/* @ts-ignore */}
+                        <Info data={product}/>
+                    </div>
+                </div>
+                <hr className="my-10"/>
+                
+            </div>
+        {suggestedProducts.length > 0 && <div className="my-2 font-semibold text-lg">
+            <h2>You might also like</h2>
+        </div>}
+        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-10">
+            {suggestedProducts.map((product) => <ProductCard key={product.id} product={product} />)}
+        </div>
+    </div>
+}
+ 
+export default ProductPage
