@@ -26,8 +26,17 @@ function parseCsv(filePath: string): CsvProduct[] {
         image_url: parts[3]?.trim(),
       }
     })
-    .filter((p) => p.name && !isNaN(p.price) && p.category && p.image_url)
+    .filter((p) => p.name && !isNaN(p.price) && p.category && p.image_url && ALLOWED_CATEGORY_SLUGS.has(p.category))
 }
+
+// Only import products whose category slug matches a known DummyJSON category
+const ALLOWED_CATEGORY_SLUGS = new Set([
+  "beauty", "fragrances", "furniture", "groceries", "home-decoration",
+  "kitchen-accessories", "laptops", "mens-shirts", "mens-shoes", "mens-watches",
+  "mobile-accessories", "motorcycle", "skin-care", "smartphones",
+  "sports-accessories", "sunglasses", "tablets", "tops", "vehicle",
+  "womens-bags", "womens-dresses", "womens-jewellery", "womens-shoes", "womens-watches",
+])
 
 function toTitleCase(slug: string): string {
   return slug
@@ -57,7 +66,7 @@ async function main() {
   }
 
   // Collect unique category slugs
-  const categorySlugs = [...new Set(products.map((p) => p.category))]
+  const categorySlugs = Array.from(new Set(products.map((p) => p.category)))
 
   // Upsert categories
   const categoryMap: Record<string, string> = {}

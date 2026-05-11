@@ -14,10 +14,12 @@ interface ProductCardProps {
         images: Image[],
         category: Category,
     }
+    priority?: boolean
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
     product,
+    priority = false,
 }) => {
     const [mounted, setMounted] = useState(false)
     const cart = useCart()
@@ -51,11 +53,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     return <div onClick={onViewProduct} className="bg-white group border p-3 rounded-md flex flex-col gap-y-3 cursor-pointer">
         <div className="aspect-square bg-gray-100 relative">
-            <NextImage 
+            <NextImage
                 fill
                 src={product?.images?.[0]?.url}
-                alt='Image'
+                alt={product.name}
                 className="aspect-square object-cover"
+                priority={priority}
             />
             <div className="opacity-0 group-hover:opacity-100 transition absolute w-full px-6 bottom-5">
                 <div className="flex items-center justify-center gap-x-6">

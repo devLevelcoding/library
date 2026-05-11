@@ -3,6 +3,21 @@ import Gallery from "@/components/gallery/index";
 import Info from "@/components/info";
 import prismadb from "@/lib/prismadb";
 import ProductCard from "@/components/product-card";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: { productId: string } }): Promise<Metadata> {
+  const product = await prismadb.product.findUnique({
+    where: { id: params.productId },
+    include: { images: true, category: true },
+  })
+  return {
+    title: product?.name ?? "Product",
+    description: `${product?.name} — ${product?.category?.name}`,
+    openGraph: {
+      images: product?.images?.[0]?.url ? [product.images[0].url] : [],
+    },
+  }
+}
 
 interface ProductPageProps {
     params: {
