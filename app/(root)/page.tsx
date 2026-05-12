@@ -15,7 +15,7 @@ export default async function Home() {
   const setting = await prismadb.setting.findFirst()
 
   const products = await prismadb.product.findMany({
-    where: { isArchived: false },
+    where: { isArchived: false, images: { some: { url: { startsWith: "http" } } } },
     include: { category: true, size: true, images: true },
     orderBy: { createdAt: "desc" },
     take: PAGE_SIZE,

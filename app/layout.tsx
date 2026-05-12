@@ -6,6 +6,7 @@ import Container from '@/components/ui/container'
 import { ToastProvider } from '@/providers/toast-provider'
 import { getCurrentUser } from '@/actions/get-current-user'
 import Footer from '@/components/footer'
+import { NavigationProgress } from '@/components/navigation-progress'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
@@ -27,8 +28,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={inter.className}>
-      <head />
-      <body>
+      <head>
+        {/* preconnect to top image CDNs so browser handshakes early */}
+        <link rel="preconnect" href="https://images.openfoodfacts.org" />
+        <link rel="preconnect" href="https://cdn.dummyjson.com" />
+        <link rel="dns-prefetch" href="https://i.imgur.com" />
+      </head>
+      <body suppressHydrationWarning>
+        <NavigationProgress />
         <ToastProvider />
         <Navbar currentUser={currentUser}/>
         <div className="pt-20">

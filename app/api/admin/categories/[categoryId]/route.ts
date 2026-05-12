@@ -7,26 +7,19 @@ export async function PATCH(req: Request, { params} : {
     }
 }) {
     try {
-        const {
-            name,
-            description,
-            enabled
-        } = await req.json()
-    
-        if (!name) return new NextResponse("Name is required", {status: 400});
-        if (!description) return new NextResponse("Description is required", {status: 400});
-    
+        const body = await req.json()
+        const { name, description, enabled, parentId } = body
+
         const category = await prismadb.category.update({
-            where: {
-                id: params.categoryId
-            },
+            where: { id: params.categoryId },
             data: {
-                name,
-                description,
-                enabled: enabled ?? false,
+                ...(name !== undefined && { name }),
+                ...(description !== undefined && { description }),
+                ...(enabled !== undefined && { enabled }),
+                ...('parentId' in body && { parentId: parentId ?? null }),
             }
         })
-    
+
         return NextResponse.json(category)
     } catch (error) {
         console.log('[CATEGORY_PATCH]', error);
