@@ -1,17 +1,14 @@
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server"
 
-export async function PATCH(req: Request, { params} : {
-    params: {
-        categoryId: string
-    }
-}) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ categoryId: string }> }) {
     try {
+        const { categoryId } = await params
         const body = await req.json()
         const { name, description, enabled, parentId } = body
 
         const category = await prismadb.category.update({
-            where: { id: params.categoryId },
+            where: { id: categoryId },
             data: {
                 ...(name !== undefined && { name }),
                 ...(description !== undefined && { description }),
@@ -27,26 +24,21 @@ export async function PATCH(req: Request, { params} : {
     }
 }
 
-
-export async function DELETE(
-    req: Request,
-    { params }: { params: { categoryId: string } }
-  ) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ categoryId: string }> }) {
     try {
+        const { categoryId } = await params
 
-      if (!params.categoryId) {
-        return new NextResponse("Category id is required", { status: 400 });
-      }
-  
-      const category = await prismadb.category.delete({
-        where: {
-          id: params.categoryId,
+        if (!categoryId) {
+            return new NextResponse("Category id is required", { status: 400 });
         }
-      });
-    
-      return NextResponse.json(category);
+
+        const category = await prismadb.category.delete({
+            where: { id: categoryId }
+        });
+
+        return NextResponse.json(category);
     } catch (error) {
-      console.log('[CATEGORY_DELETE]', error);
-      return new NextResponse("Internal error", { status: 500 });
+        console.log('[CATEGORY_DELETE]', error);
+        return new NextResponse("Internal error", { status: 500 });
     }
-  };
+}

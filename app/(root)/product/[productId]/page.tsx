@@ -6,9 +6,10 @@ import ProductCard from "@/components/product-card";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { productId: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ productId: string }> }): Promise<Metadata> {
+  const { productId } = await params
   const product = await prismadb.product.findUnique({
-    where: { id: params.productId },
+    where: { id: productId },
     include: { images: true, category: true },
   })
   return {
@@ -20,9 +21,10 @@ export async function generateMetadata({ params }: { params: { productId: string
   }
 }
 
-const ProductPage = async ({ params }: { params: { productId: string } }) => {
+const ProductPage = async ({ params }: { params: Promise<{ productId: string }> }) => {
+  const { productId } = await params
   const product = await prismadb.product.findUnique({
-    where: { id: params.productId },
+    where: { id: productId },
     include: {
       images: true,
       size: true,
@@ -33,7 +35,7 @@ const ProductPage = async ({ params }: { params: { productId: string } }) => {
   if (!product) return null
 
   const suggestedProducts = await prismadb.product.findMany({
-    where: { categoryId: product.categoryId, NOT: { id: product.id }, isArchived: false },
+    where: { categoryId: product.categoryId, NOT: { id: productId }, isArchived: false },
     include: { images: true, size: true, category: true },
     take: 8,
   })

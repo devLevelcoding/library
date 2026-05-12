@@ -8,15 +8,7 @@ import { getSalesCount } from "@/actions/get-sales-count";
 import { getStockCount } from "@/actions/get-stock-count";
 import { getTotalRevenue } from "@/actions/get-total-revenue";
 
-interface DashboardPageProps {
-  params: {
-    storeId: string;
-  };
-};
-
-const DashboardPage: React.FC<DashboardPageProps> = async ({ 
-  params
-}) => {
+const DashboardPage = async () => {
   const totalRevenue = await getTotalRevenue();
   const salesCount = await getSalesCount();
   const stockCount = await getStockCount();

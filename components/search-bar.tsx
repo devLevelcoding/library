@@ -85,6 +85,7 @@ export default function SearchBar() {
           aria-autocomplete="list"
           aria-expanded={open && results.length > 0}
           aria-haspopup="listbox"
+          aria-controls="search-listbox"
           role="combobox"
           className="w-full rounded-full border border-input bg-background pl-9 pr-8 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring transition"
         />
@@ -99,7 +100,7 @@ export default function SearchBar() {
       </div>
 
       {open && results.length > 0 && (
-        <div role="listbox" aria-label="Search results" className="absolute top-full left-0 right-0 mt-1 z-50 rounded-md border bg-popover shadow-lg overflow-hidden">
+        <div id="search-listbox" role="listbox" aria-label="Search results" className="absolute top-full left-0 right-0 mt-1 z-50 rounded-md border bg-popover shadow-lg overflow-hidden">
           {results.map((product, idx) => {
             const imgUrl = product.images[0]?.url
             return (

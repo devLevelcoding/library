@@ -19,16 +19,18 @@ const getCategory = cache(async (categoryId: string) => {
   })
 })
 
-export async function generateMetadata({ params }: { params: { categoryId: string } }): Promise<Metadata> {
-  const category = await getCategory(params.categoryId)
+export async function generateMetadata({ params }: { params: Promise<{ categoryId: string }> }): Promise<Metadata> {
+  const { categoryId } = await params
+  const category = await getCategory(categoryId)
   return {
     title: category?.name ?? "Category",
     description: `Browse all ${category?.name ?? "products"} in our store.`,
   }
 }
 
-const CategoryPage = async ({ params }: { params: { categoryId: string } }) => {
-  const category = await getCategory(params.categoryId)
+const CategoryPage = async ({ params }: { params: Promise<{ categoryId: string }> }) => {
+  const { categoryId } = await params
+  const category = await getCategory(categoryId)
   if (!category) return null
 
   const rootId =
@@ -40,7 +42,7 @@ const CategoryPage = async ({ params }: { params: { categoryId: string } }) => {
   // if this category has leaf children → include children's products too (group page)
   // otherwise just own ID (leaf page)
   const childIds = category.children.map(c => c.id)
-  const effectiveIds = childIds.length > 0 ? [params.categoryId, ...childIds] : [params.categoryId]
+  const effectiveIds = childIds.length > 0 ? [categoryId, ...childIds] : [categoryId]
 
   const productWhere = {
     isArchived: false,
