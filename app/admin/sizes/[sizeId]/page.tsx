@@ -1,6 +1,8 @@
 import prismadb from "@/lib/prismadb";
 import SizeForm from "./components/size-form";
 
+export const dynamic = 'force-dynamic'
+
 const SizesPage = async ({
     params
 }: {

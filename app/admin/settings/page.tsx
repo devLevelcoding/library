@@ -3,21 +3,21 @@ import SettingsForm from "./components/settings-form";
 import { Heading } from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 
-const SettingsPage = async () => {
+export const dynamic = 'force-dynamic'
 
-    const setting = await prismadb.setting.findFirst()
+const SettingsPage = async () => {
+    let setting = null
+    try {
+        setting = await prismadb.setting.findFirst()
+    } catch {}
 
     return (
         <div>
-            <Heading 
-                title="Settings"
-                description="Shop main settings here"
-            />
+            <Heading title="Settings" description="Shop main settings here" />
             <Separator />
             <SettingsForm setting={setting} />
         </div>
     )
-
 }
- 
+
 export default SettingsPage;

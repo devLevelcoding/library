@@ -1,6 +1,8 @@
 import prismadb from "@/lib/prismadb";
 import ProductForm from "./components/product-form";
 
+export const dynamic = 'force-dynamic'
+
 const ProductsPage = async ({
     params
 }: {

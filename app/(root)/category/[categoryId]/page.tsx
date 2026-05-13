@@ -1,4 +1,6 @@
 import { cache } from "react";
+
+export const dynamic = 'force-dynamic'
 import NoResults from "@/components/ui/no-results";
 import ProductGrid from "@/components/product-grid";
 import { Breadcrumb } from "@/components/ui/breadcrumb";

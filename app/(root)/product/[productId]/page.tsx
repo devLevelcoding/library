@@ -1,4 +1,6 @@
 import React from "react";
+
+export const dynamic = 'force-dynamic'
 import Gallery from "@/components/gallery/index";
 import Info from "@/components/info";
 import prismadb from "@/lib/prismadb";
