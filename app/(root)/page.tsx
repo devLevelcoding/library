@@ -3,6 +3,11 @@ import NoResults from "@/components/ui/no-results";
 import ProductGrid from "@/components/product-grid";
 import prismadb from "@/lib/prismadb";
 import type { Metadata } from "next";
+import type { Category, Image, Product, Size } from "@prisma/client";
+
+type FullProduct = Product & { images: Image[]; category: Category; size: Size }
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: "Home",
@@ -12,14 +17,20 @@ export const metadata: Metadata = {
 const PAGE_SIZE = 20
 
 export default async function Home() {
-  const setting = await prismadb.setting.findFirst()
+  let setting = null
+  let products: FullProduct[] = []
 
-  const products = await prismadb.product.findMany({
-    where: { isArchived: false, images: { some: { url: { startsWith: "http" } } } },
-    include: { category: true, size: true, images: true },
-    orderBy: { createdAt: "desc" },
-    take: PAGE_SIZE,
-  })
+  try {
+    setting = await prismadb.setting.findFirst()
+    products = await prismadb.product.findMany({
+      where: { isArchived: false, images: { some: { url: { startsWith: "http" } } } },
+      include: { category: true, size: true, images: true },
+      orderBy: { createdAt: "desc" },
+      take: PAGE_SIZE,
+    })
+  } catch {
+    // DB not available at build time
+  }
 
   return (
     <div>
