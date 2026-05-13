@@ -4,7 +4,7 @@ const config = {
   testEnvironment: 'node',
   // Use babel-jest with next/babel preset — avoids SWC RSC boundary enforcement
   transform: {
-    '^.+\\.(js|jsx|ts|tsx|mjs|cjs)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx|mjs|cjs)$': ['babel-jest', { presets: ['next/babel'] }],
   },
   moduleNameMapper: {
     // Path alias

@@ -6,16 +6,17 @@ declare global {
 
 function createPrismaClient(): PrismaClient {
   if (process.env.TURSO_DATABASE_URL) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line
     const { createClient } = require("@libsql/client")
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line
     const { PrismaLibSQL } = require("@prisma/adapter-libsql")
     const libsql = createClient({
       url: process.env.TURSO_DATABASE_URL,
       authToken: process.env.TURSO_AUTH_TOKEN,
     })
     const adapter = new PrismaLibSQL(libsql)
-    return new PrismaClient({ adapter } as Parameters<typeof PrismaClient>[0])
+    // eslint-disable-next-line
+    return new PrismaClient({ adapter } as any)
   }
   return new PrismaClient()
 }

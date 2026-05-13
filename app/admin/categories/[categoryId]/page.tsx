@@ -1,29 +1,18 @@
 import prismadb from "@/lib/prismadb";
 import CategoryForm from "./components/category-form";
-import { Heading } from "@/components/ui/heading";
 
-const CategoriesPage = async ({
-    params
-}: {
-    params: {
-        categoryId: string
-    }
-}) => {
+const CategoryEditPage = async ({ params }: { params: Promise<{ categoryId: string }> }) => {
+  const { categoryId } = await params
+  const [category, allCategories] = await Promise.all([
+    prismadb.category.findUnique({ where: { id: categoryId } }),
+    prismadb.category.findMany({ orderBy: { name: "asc" } }),
+  ])
 
-    const category = await prismadb.category.findUnique({
-        where: {
-            id: params.categoryId,
-        },
-    })
-
-    return (
-        <div>
-            <CategoryForm 
-                category={category}
-            />
-        </div>
-    )
-
+  return (
+    <div>
+      <CategoryForm category={category} allCategories={allCategories} />
+    </div>
+  )
 }
- 
-export default CategoriesPage;
+
+export default CategoryEditPage;
