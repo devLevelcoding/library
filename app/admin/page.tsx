@@ -8,6 +8,8 @@ import { getSalesCount } from "@/actions/get-sales-count";
 import { getStockCount } from "@/actions/get-stock-count";
 import { getTotalRevenue } from "@/actions/get-total-revenue";
 
+export const dynamic = 'force-dynamic'
+
 const DashboardPage = async () => {
   const totalRevenue = await getTotalRevenue();
   const salesCount = await getSalesCount();
