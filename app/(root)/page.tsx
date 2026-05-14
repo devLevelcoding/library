@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Browse thousands of products across beauty, electronics, fashion and more.",
 }
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 10
 
 export default async function Home() {
   let setting = null
@@ -23,7 +23,7 @@ export default async function Home() {
   try {
     setting = await prismadb.setting.findFirst()
     products = await prismadb.product.findMany({
-      where: { isArchived: false, images: { some: { url: { startsWith: "http" } } } },
+      where: { isArchived: false },
       include: { category: true, size: true, images: true },
       orderBy: { createdAt: "desc" },
       take: PAGE_SIZE,
