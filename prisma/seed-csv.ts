@@ -14,7 +14,6 @@ interface CsvProduct {
 function parseCsv(filePath: string): CsvProduct[] {
   const content = fs.readFileSync(filePath, "utf-8")
   const lines = content.trim().split(/\r?\n/)
-  // skip header row
   return lines
     .slice(1)
     .map((line) => {
@@ -29,7 +28,6 @@ function parseCsv(filePath: string): CsvProduct[] {
     .filter((p) => p.name && !isNaN(p.price) && p.category && p.image_url && ALLOWED_CATEGORY_SLUGS.has(p.category))
 }
 
-// Only import products whose category slug matches a known DummyJSON category
 const ALLOWED_CATEGORY_SLUGS = new Set([
   "beauty", "fragrances", "furniture", "groceries", "home-decoration",
   "kitchen-accessories", "laptops", "mens-shirts", "mens-shoes", "mens-watches",
@@ -39,14 +37,12 @@ const ALLOWED_CATEGORY_SLUGS = new Set([
 ])
 
 function toTitleCase(slug: string): string {
-  return slug
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ")
+  return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
 }
 
+const BATCH = 500
+
 async function main() {
-  // products.csv sits one level above the project root
   const csvPath = path.join(process.cwd(), "..", "products.csv")
   if (!fs.existsSync(csvPath)) {
     console.error(`❌ CSV not found at: ${csvPath}`)
@@ -56,69 +52,78 @@ async function main() {
   const products = parseCsv(csvPath)
   console.log(`📄 Parsed ${products.length} products from CSV`)
 
-  // Ensure a default size exists
+  // Ensure default size
   let defaultSize = await prisma.size.findFirst({ where: { value: "ONE" } })
   if (!defaultSize) {
     defaultSize = await prisma.size.create({
       data: { name: "One Size", value: "ONE", enabled: true },
     })
-    console.log("✅ Created default size: One Size")
+    console.log("✅ Created default size")
   }
 
-  // Collect unique category slugs
+  // Upsert all categories in one pass
   const categorySlugs = Array.from(new Set(products.map((p) => p.category)))
-
-  // Upsert categories
+  const existingCats = await prisma.category.findMany({
+    where: { name: { in: categorySlugs.map(toTitleCase) } },
+    select: { id: true, name: true },
+  })
   const categoryMap: Record<string, string> = {}
-  for (const slug of categorySlugs) {
-    const name = toTitleCase(slug)
-    let cat = await prisma.category.findFirst({ where: { name } })
-    if (!cat) {
-      cat = await prisma.category.create({
-        data: { name, description: name, enabled: true },
-      })
-      console.log(`  + Category: ${name}`)
-    }
+  for (const cat of existingCats) {
+    const slug = categorySlugs.find(s => toTitleCase(s) === cat.name)!
     categoryMap[slug] = cat.id
   }
+  for (const slug of categorySlugs.filter(s => !categoryMap[s])) {
+    const name = toTitleCase(slug)
+    const cat = await prisma.category.create({ data: { name, description: name, enabled: true } })
+    categoryMap[slug] = cat.id
+    console.log(`  + Category: ${name}`)
+  }
 
-  // Insert products
+  // Skip products that already exist — single bulk query
+  const existingNames = new Set(
+    (await prisma.product.findMany({ select: { name: true } })).map(p => p.name)
+  )
+  const toInsert = products.filter(p => categoryMap[p.category] && !existingNames.has(p.name))
+  console.log(`\n⚡ Inserting ${toInsert.length} new products (${products.length - toInsert.length} skipped)`)
+
+  // Batch createMany for products, then images separately
   let created = 0
-  let skipped = 0
-  for (const p of products) {
-    const categoryId = categoryMap[p.category]
-    if (!categoryId) {
-      skipped++
-      continue
-    }
-    // skip if a product with same name already exists
-    const existing = await prisma.product.findFirst({ where: { name: p.name } })
-    if (existing) {
-      skipped++
-      continue
-    }
-    await prisma.product.create({
-      data: {
+  for (let i = 0; i < toInsert.length; i += BATCH) {
+    const batch = toInsert.slice(i, i + BATCH)
+
+    // Insert products without images
+    await prisma.product.createMany({
+      data: batch.map(p => ({
         name: p.name,
         price: p.price,
         isFeatured: false,
         isArchived: false,
-        categoryId,
-        sizeId: defaultSize.id,
-        images: {
-          create: [{ url: p.image_url }],
-        },
-      },
+        categoryId: categoryMap[p.category],
+        sizeId: defaultSize!.id,
+      })),
     })
-    created++
+
+    // Fetch the just-inserted product IDs by name
+    const inserted = await prisma.product.findMany({
+      where: { name: { in: batch.map(p => p.name) } },
+      select: { id: true, name: true },
+    })
+    const nameToId = new Map(inserted.map(p => [p.name, p.id]))
+
+    // Insert images in the same batch
+    await prisma.image.createMany({
+      data: batch
+        .filter(p => nameToId.has(p.name))
+        .map(p => ({ productId: nameToId.get(p.name)!, url: p.image_url })),
+    })
+
+    created += batch.length
+    console.log(`  ✓ ${created} / ${toInsert.length}`)
   }
 
-  console.log(`\n✅ Done — ${created} products imported, ${skipped} skipped`)
+  console.log(`\n✅ Done — ${created} products imported`)
 }
 
 main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
+  .catch((e) => { console.error(e); process.exit(1) })
   .finally(() => prisma.$disconnect())
