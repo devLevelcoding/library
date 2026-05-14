@@ -83,6 +83,7 @@ export default function ProductGrid({
     fetch(`/api/products?${params}`)
       .then(r => r.json())
       .then((next: FullProduct[]) => {
+        if (!Array.isArray(next)) return
         setProducts(next)
         setSkip(next.length)
         setHasMore(next.length === pageSize)

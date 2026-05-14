@@ -34,7 +34,6 @@ export async function GET(req: Request) {
       isArchived: false,
       ...categoryFilter,
       ...priceFilter,
-      images: { some: { url: { startsWith: "http" } } },
     }
 
     if (searchParams.get("count") === "true") {
