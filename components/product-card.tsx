@@ -1,13 +1,13 @@
 "use client"
 
-import { formatter, truncate } from "@/lib/utils";
-import { Category, Image, Product } from "@prisma/client";
-import NextImage from "next/image";
-import React, { MouseEventHandler, useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { Eye, ShoppingCart, X } from "lucide-react";
-import useCart from "@/hooks/use-cart";
-import { useRouter } from "next/navigation";
+import Link from "next/link"
+import { formatter, truncate } from "@/lib/utils"
+import { Category, Image, Product } from "@prisma/client"
+import NextImage from "next/image"
+import React, { useEffect, useState } from "react"
+import { Button } from "./ui/button"
+import { ShoppingCart, X } from "lucide-react"
+import useCart from "@/hooks/use-cart"
 
 interface ProductCardProps {
   product: Product & { images: Image[]; category: Category }
@@ -19,7 +19,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
   const [mounted, setMounted] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const cart = useCart()
-  const router = useRouter()
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -30,17 +29,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
     if (mounted && !validImage) onImageSettled?.()
   }, [mounted, validImage, onImageSettled])
 
-  if (!mounted) return null
+  const cartHasProduct = mounted ? cart.items.find(item => item.id === product.id) : null
 
-  const cartHasProduct = cart.items.find(item => item.id === product.id)
-
-  const onAddToCart: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.stopPropagation()
+  const onAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
     cart.addItem(product)
   }
 
-  const onRemoveFromCart: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.stopPropagation()
+  const onRemoveFromCart = (e: React.MouseEvent) => {
+    e.preventDefault()
     cart.removeItem(product.id)
   }
 
@@ -50,10 +47,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
   }
 
   return (
-    <div
-      onClick={() => router.push(`/product/${product.id}`)}
-      className="bg-white group border p-3 rounded-md flex flex-col gap-y-3 cursor-pointer"
-      role="article"
+    <Link
+      href={`/product/${product.id}`}
+      className="bg-white group border p-3 rounded-md flex flex-col gap-y-3 hover:shadow-md transition-shadow"
     >
       <div className="aspect-square bg-gray-100 relative flex items-center justify-center overflow-hidden">
         {validImage && !imageLoaded && (
@@ -73,23 +69,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
         ) : (
           <span className="text-xs text-gray-400">No image</span>
         )}
-        <div className="opacity-0 group-hover:opacity-100 transition absolute w-full px-6 bottom-5">
-          <div className="flex items-center justify-center gap-x-6">
-            <Button variant="outline" className="border-gray-300" aria-label={`View ${product.name}`}
-              onClick={(e) => { e.stopPropagation(); router.push(`/product/${product.id}`) }}>
-              <Eye size={25} className="text-gray-600" aria-hidden="true" />
-            </Button>
-            {cartHasProduct ? (
-              <Button onClick={onRemoveFromCart} variant="outline" className="border-neutral-300" aria-label={`Remove ${product.name} from cart`}>
-                <X size={25} className="text-neutral-800" aria-hidden="true" />
-              </Button>
-            ) : (
-              <Button onClick={onAddToCart} variant="outline" className="border-neutral-300" aria-label={`Add ${product.name} to cart`}>
-                <ShoppingCart size={25} className="text-neutral-800" aria-hidden="true" />
-              </Button>
-            )}
+        {mounted && (
+          <div className="opacity-0 group-hover:opacity-100 transition absolute w-full px-6 bottom-5">
+            <div className="flex items-center justify-center gap-x-6">
+              {cartHasProduct ? (
+                <Button onClick={onRemoveFromCart} variant="outline" className="border-neutral-300" aria-label={`Remove ${product.name} from cart`}>
+                  <X size={25} className="text-neutral-800" aria-hidden="true" />
+                </Button>
+              ) : (
+                <Button onClick={onAddToCart} variant="outline" className="border-neutral-300" aria-label={`Add ${product.name} to cart`}>
+                  <ShoppingCart size={25} className="text-neutral-800" aria-hidden="true" />
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div>
@@ -99,19 +93,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
       <div>
         <p className="font-medium">{formatter.format(Number(product.price))}</p>
       </div>
-      <div className="flex sm:hidden items-center justify-end">
-        {cartHasProduct ? (
-          <Button onClick={onRemoveFromCart} className="flex items-center gap-x-2" aria-label={`Remove ${product.name} from cart`}>
-            Remove from cart <X aria-hidden="true" />
-          </Button>
-        ) : (
-          <Button onClick={onAddToCart} className="flex items-center gap-x-2" aria-label={`Add ${product.name} to cart`}>
-            Add To Cart <ShoppingCart aria-hidden="true" />
-          </Button>
-        )}
-      </div>
-    </div>
+
+      {mounted && (
+        <div className="flex sm:hidden items-center justify-end">
+          {cartHasProduct ? (
+            <Button onClick={onRemoveFromCart} className="flex items-center gap-x-2" aria-label={`Remove ${product.name} from cart`}>
+              Remove from cart <X aria-hidden="true" />
+            </Button>
+          ) : (
+            <Button onClick={onAddToCart} className="flex items-center gap-x-2" aria-label={`Add ${product.name} to cart`}>
+              Add To Cart <ShoppingCart aria-hidden="true" />
+            </Button>
+          )}
+        </div>
+      )}
+    </Link>
   )
 }
 
-export default ProductCard;
+export default ProductCard

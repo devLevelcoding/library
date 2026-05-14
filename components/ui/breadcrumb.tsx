@@ -10,8 +10,9 @@ interface BreadcrumbItem {
 export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center flex-wrap gap-1 text-sm text-muted-foreground mb-4">
-      <Link href="/" className="hover:text-foreground flex items-center">
-        <Home className="h-3.5 w-3.5" />
+      <Link href="/" aria-label="Home" className="hover:text-foreground flex items-center">
+        <Home className="h-3.5 w-3.5" aria-hidden="true" />
+        <span className="sr-only">Home</span>
       </Link>
       {items.map((item, i) => (
         <React.Fragment key={i}>

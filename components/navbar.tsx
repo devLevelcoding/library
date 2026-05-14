@@ -13,7 +13,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = async ({ currentUser }) => {
   return (
-    <div className="bg-white w-full border-b mb-6 fixed z-20">
+    <header className="bg-white w-full border-b mb-6 fixed z-20">
       <Container>
         <div className="flex h-16 items-center gap-4">
           {/* left: logo + categories */}
@@ -36,7 +36,7 @@ const Navbar: React.FC<NavbarProps> = async ({ currentUser }) => {
           </div>
         </div>
       </Container>
-    </div>
+    </header>
   )
 }
 

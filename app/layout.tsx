@@ -13,9 +13,11 @@ const inter = Inter({ subsets: ['latin'], display: 'swap' })
 export const metadata: Metadata = {
   title: { default: 'Shop', template: '%s | Shop' },
   description: 'Browse thousands of products across beauty, electronics, fashion and more.',
+  robots: { index: true, follow: true },
   openGraph: {
     siteName: 'Shop',
     type: 'website',
+    description: 'Browse thousands of products across beauty, electronics, fashion and more.',
   },
 }
 
@@ -38,11 +40,11 @@ export default async function RootLayout({
         <NavigationProgress />
         <ToastProvider />
         <Navbar currentUser={currentUser}/>
-        <div className="pt-20">
+        <main className="pt-20">
           <Container>
             {children}
           </Container>
-        </div>
+        </main>
         <Footer />
       </body>
     </html>

@@ -116,8 +116,10 @@ export function FilterPanel({
               </p>
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" aria-hidden="true">$</span>
+                  <label htmlFor="filter-min-price" className="sr-only">Minimum price</label>
                   <input
+                    id="filter-min-price"
                     type="number"
                     min={0}
                     placeholder={String(Math.floor(absoluteMin))}
@@ -126,10 +128,12 @@ export function FilterPanel({
                     className="w-full border rounded-md pl-6 pr-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>
-                <span className="text-muted-foreground text-sm">—</span>
+                <span className="text-muted-foreground text-sm" aria-hidden="true">—</span>
                 <div className="relative flex-1">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">$</span>
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground" aria-hidden="true">$</span>
+                  <label htmlFor="filter-max-price" className="sr-only">Maximum price</label>
                   <input
+                    id="filter-max-price"
                     type="number"
                     min={0}
                     placeholder={String(Math.ceil(absoluteMax))}
