@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     })
 
     return NextResponse.json(products)
-  } catch {
-    return new NextResponse("Internal error", { status: 500 })
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message, turso: !!process.env.TURSO_DATABASE_URL, url: process.env.TURSO_DATABASE_URL?.slice(0, 30) }, { status: 500 })
   }
 }
