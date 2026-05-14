@@ -62,6 +62,8 @@ model Product {
 
   @@index([categoryId])
   @@index([sizeId])
+  @@index([isArchived])
+  @@index([isArchived, createdAt])
 }
 
 model Order {
