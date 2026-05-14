@@ -3,7 +3,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ["@libsql/client", "@prisma/adapter-libsql"],
+  serverExternalPackages: ["@prisma/client", "@libsql/client", "@prisma/adapter-libsql"],
 }
 
 module.exports = nextConfig
