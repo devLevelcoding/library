@@ -54,7 +54,7 @@ export async function GET(req: Request) {
     })
 
     return NextResponse.json(products)
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message, stack: e?.stack?.slice(0, 800) }, { status: 500 })
+  } catch {
+    return new NextResponse("Internal error", { status: 500 })
   }
 }

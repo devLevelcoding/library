@@ -11,13 +11,12 @@ declare global {
 function buildClient(): PrismaClient {
   const { PrismaClient: PC } = require("@prisma/client")
   if (process.env.TURSO_DATABASE_URL) {
-    const { createClient } = require("@libsql/client")
     const { PrismaLibSQL } = require("@prisma/adapter-libsql")
-    const libsql = createClient({
+    // v6 adapter factory takes the config directly, not a pre-created client
+    const adapter = new PrismaLibSQL({
       url: process.env.TURSO_DATABASE_URL,
       authToken: process.env.TURSO_AUTH_TOKEN,
     })
-    const adapter = new PrismaLibSQL(libsql)
     return new PC({ adapter })
   }
   return new PC()
