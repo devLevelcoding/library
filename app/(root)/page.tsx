@@ -7,7 +7,7 @@ import type { Category, Image, Product, Size } from "@prisma/client";
 
 type FullProduct = Product & { images: Image[]; category: Category; size: Size }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // cache at CDN for 5 minutes
 
 export const metadata: Metadata = {
   title: "Home",

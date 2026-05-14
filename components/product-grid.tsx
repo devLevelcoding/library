@@ -209,7 +209,7 @@ export default function ProductGrid({
               <ProductCard
                 key={product.id}
                 product={product}
-                priority={pageIdx === 0 && i === 0}
+                priority={pageIdx === 0 && i < 4}
                 onImageSettled={handleImageSettled}
               />
             ))}

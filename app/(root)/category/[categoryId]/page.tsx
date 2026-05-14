@@ -1,7 +1,7 @@
 import { cache } from "react"
 import Script from "next/script"
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // cache at CDN for 5 minutes
 import NoResults from "@/components/ui/no-results"
 import ProductGrid from "@/components/product-grid"
 import { Breadcrumb } from "@/components/ui/breadcrumb"
