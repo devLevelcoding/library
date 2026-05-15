@@ -39,6 +39,7 @@ export default function ProductGrid({
   const [totalCount, setTotalCount] = useState<number | null>(initialTotal ?? null)
   const [currentPage, setCurrentPage] = useState(0)
   const [filters, setFilters] = useState<FilterState>({
+    query: "",
     minPrice: "",
     maxPrice: "",
     categoryIds: defaultCategoryIds,
@@ -59,6 +60,7 @@ export default function ProductGrid({
     if (filters.categoryIds.length > 0) p.set("categoryIds", filters.categoryIds.join(","))
     if (filters.minPrice) p.set("minPrice", filters.minPrice)
     if (filters.maxPrice) p.set("maxPrice", filters.maxPrice)
+    if (filters.query) p.set("q", filters.query)
     p.set("skip", String(extraSkip ?? 0))
     p.set("take", String(pageSize))
     return p
@@ -73,6 +75,8 @@ export default function ProductGrid({
     setSettledCount(0)
     setTotalCount(null)
     setCurrentPage(0)
+    // scroll back to top so user sees results from the beginning
+    window.scrollTo({ top: 0, behavior: "smooth" })
   }, [])
 
   // refetch products when filters change (skip reset triggers this)

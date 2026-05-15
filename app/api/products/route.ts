@@ -11,6 +11,7 @@ export async function GET(req: Request) {
 
     const minPrice = searchParams.get("minPrice")
     const maxPrice = searchParams.get("maxPrice")
+    const q = searchParams.get("q")?.trim()
 
     let categoryFilter: object = {}
     if (categoryIdsParam) {
@@ -34,6 +35,7 @@ export async function GET(req: Request) {
       isArchived: false,
       ...categoryFilter,
       ...priceFilter,
+      ...(q ? { name: { contains: q } } : {}),
     }
 
     if (searchParams.get("count") === "true") {

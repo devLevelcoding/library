@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { SlidersHorizontal, X, ChevronDown, ChevronUp } from "lucide-react"
+import { useState, useRef } from "react"
+import { SlidersHorizontal, X, ChevronDown, ChevronUp, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { formatter } from "@/lib/utils"
 
 export interface FilterState {
+  query: string
   minPrice: string
   maxPrice: string
   categoryIds: string[]   // empty = all
@@ -32,12 +33,14 @@ export function FilterPanel({
   onApply,
 }: FilterPanelProps) {
   const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState("")
   const [minPrice, setMinPrice] = useState("")
   const [maxPrice, setMaxPrice] = useState("")
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultCategoryIds)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const hasActiveFilters =
-    minPrice !== "" || maxPrice !== "" || selectedIds.length !== defaultCategoryIds.length
+    query !== "" || minPrice !== "" || maxPrice !== "" || selectedIds.length !== defaultCategoryIds.length
 
   const handleToggleId = (id: string) => {
     setSelectedIds(prev =>
@@ -47,20 +50,52 @@ export function FilterPanel({
 
   const handleSelectAll = () => setSelectedIds(defaultCategoryIds)
 
+  const handleQueryChange = (val: string) => {
+    setQuery(val)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      onApply({ query: val, minPrice, maxPrice, categoryIds: selectedIds })
+    }, 350)
+  }
+
   const handleApply = () => {
-    onApply({ minPrice, maxPrice, categoryIds: selectedIds })
+    onApply({ query, minPrice, maxPrice, categoryIds: selectedIds })
     setOpen(false)
   }
 
   const handleReset = () => {
+    setQuery("")
     setMinPrice("")
     setMaxPrice("")
     setSelectedIds(defaultCategoryIds)
-    onApply({ minPrice: "", maxPrice: "", categoryIds: defaultCategoryIds })
+    onApply({ query: "", minPrice: "", maxPrice: "", categoryIds: defaultCategoryIds })
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 space-y-3">
+      {/* inline category search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
+        <label htmlFor="category-search" className="sr-only">Search within this category</label>
+        <input
+          id="category-search"
+          type="text"
+          value={query}
+          onChange={e => handleQueryChange(e.target.value)}
+          placeholder="Search by title or author..."
+          className="w-full rounded-full border border-input bg-background pl-9 pr-8 py-2 text-sm outline-none focus:ring-2 focus:ring-ring transition"
+        />
+        {query && (
+          <button
+            onClick={() => handleQueryChange("")}
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        )}
+      </div>
+
       {/* toggle bar */}
       <div className="flex items-center gap-3">
         <button
