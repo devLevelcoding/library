@@ -84,6 +84,21 @@ const CategoryPage = async ({ params }: { params: Promise<{ categoryId: string }
     }),
   ])
 
+  // Fetch tags via raw libsql — works without prisma generate
+  type TagRow = { id: string; name: string; slug: string; color: string; group: string }
+  let availableTags: TagRow[] = []
+  if (process.env.TURSO_DATABASE_URL) {
+    try {
+      const { createClient } = await import("@libsql/client")
+      const db = createClient({ url: process.env.TURSO_DATABASE_URL!, authToken: process.env.TURSO_AUTH_TOKEN })
+      const res = await db.execute('SELECT id, name, slug, color, "group" FROM Tag ORDER BY "group" ASC, name ASC')
+      availableTags = res.rows.map(r => ({
+        id: String(r[0]), name: String(r[1]), slug: String(r[2]), color: String(r[3]), group: String(r[4]),
+      }))
+      db.close()
+    } catch { /* tags unavailable */ }
+  }
+
   const showSidebar = root != null && root.children.length > SIDEBAR_THRESHOLD
 
   const breadcrumbItems = [
@@ -166,13 +181,14 @@ const CategoryPage = async ({ params }: { params: Promise<{ categoryId: string }
             <p className="text-sm text-muted-foreground mb-4">{totalCount} products</p>
             {products.length === 0 && <NoResults />}
             <ProductGrid
-              initialProducts={products}
+              initialProducts={products as any}
               categoryIds={effectiveIds}
               pageSize={PAGE_SIZE}
               initialTotal={totalCount}
               absoluteMinPrice={minPrice}
               absoluteMaxPrice={maxPrice}
               subcategories={subcategories}
+              availableTags={availableTags}
             />
           </div>
         </div>

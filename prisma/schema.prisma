@@ -47,17 +47,18 @@ model Size {
 
 model Product {
   id          String    @id @default(uuid())
-  categoryId  String    
+  categoryId  String
   category    Category  @relation("CategoryToProduct", fields: [categoryId], references: [id])
   name        String
   author      String?
   price       Float
   isFeatured  Boolean   @default(false)
   isArchived  Boolean   @default(false)
-  sizeId      String    
+  sizeId      String
   size        Size      @relation(fields: [sizeId], references: [id])
-  images      Image[]   
-  orderItems  OrderItem[]  
+  images      Image[]
+  tags        ProductTag[]
+  orderItems  OrderItem[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -65,6 +66,32 @@ model Product {
   @@index([sizeId])
   @@index([isArchived])
   @@index([isArchived, createdAt])
+}
+
+model Tag {
+  id       String       @id @default(uuid())
+  name     String       @unique
+  slug     String       @unique
+  color    String       @default("#6b7280")
+  group    String       @default("General")
+  products ProductTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([group])
+}
+
+model ProductTag {
+  productId String
+  tagId     String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+  @@index([productId])
+  @@index([tagId])
 }
 
 model Order {

@@ -5,7 +5,8 @@ import { Category, Image, Product, Size } from "@prisma/client"
 import ProductCard from "./product-card"
 import { FilterPanel, FilterState } from "./filter-panel"
 
-type FullProduct = Product & { images: Image[]; category: Category; size: Size }
+interface TagRef { id: string; name: string; slug: string; color: string; group: string }
+type FullProduct = Product & { images: Image[]; category: Category; size: Size; tags?: { tag: TagRef }[] }
 
 interface Subcategory { id: string; name: string }
 
@@ -18,6 +19,7 @@ interface ProductGridProps {
   absoluteMinPrice?: number
   absoluteMaxPrice?: number
   subcategories?: Subcategory[]
+  availableTags?: TagRef[]
 }
 
 export default function ProductGrid({
@@ -29,6 +31,7 @@ export default function ProductGrid({
   absoluteMinPrice = 0,
   absoluteMaxPrice = 9999,
   subcategories = [],
+  availableTags = [],
 }: ProductGridProps) {
   const defaultCategoryIds = categoryIds ?? (categoryId ? [categoryId] : [])
 
@@ -43,6 +46,7 @@ export default function ProductGrid({
     minPrice: "",
     maxPrice: "",
     categoryIds: defaultCategoryIds,
+    tagIds: [],
   })
 
   const [settledCount, setSettledCount] = useState(0)
@@ -61,6 +65,7 @@ export default function ProductGrid({
     if (filters.minPrice) p.set("minPrice", filters.minPrice)
     if (filters.maxPrice) p.set("maxPrice", filters.maxPrice)
     if (filters.query) p.set("q", filters.query)
+    if (filters.tagIds.length > 0) p.set("tags", filters.tagIds.join(","))
     p.set("skip", String(extraSkip ?? 0))
     p.set("take", String(pageSize))
     return p
@@ -169,7 +174,7 @@ export default function ProductGrid({
     products.slice(i * pageSize, (i + 1) * pageSize)
   )
 
-  const showFilters = subcategories.length > 0 || absoluteMinPrice !== absoluteMaxPrice
+  const showFilters = subcategories.length > 0 || absoluteMinPrice !== absoluteMaxPrice || availableTags.length > 0
 
   return (
     <div className="relative">
@@ -200,6 +205,7 @@ export default function ProductGrid({
           absoluteMax={absoluteMaxPrice}
           subcategories={subcategories}
           defaultCategoryIds={defaultCategoryIds}
+          availableTags={availableTags}
           onApply={handleApplyFilters}
         />
       )}

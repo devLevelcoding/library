@@ -31,10 +31,8 @@ export default async function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <head>
-        {/* preconnect to top image CDNs so browser handshakes early */}
-        <link rel="preconnect" href="https://images.openfoodfacts.org" />
-        <link rel="preconnect" href="https://cdn.dummyjson.com" />
-        <link rel="dns-prefetch" href="https://i.imgur.com" />
+        <link rel="preconnect" href="https://covers.openlibrary.org" />
+        <link rel="dns-prefetch" href="https://covers.openlibrary.org" />
       </head>
       <body suppressHydrationWarning>
         <NavigationProgress />
