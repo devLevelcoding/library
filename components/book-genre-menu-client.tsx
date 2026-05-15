@@ -17,8 +17,6 @@ export default function BookGenreMenuClient({ genres }: { genres: Genre[] }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
-  if (pathname?.includes("admin")) return null
-
   // close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -30,6 +28,8 @@ export default function BookGenreMenuClient({ genres }: { genres: Genre[] }) {
 
   // close on route change
   useEffect(() => { setOpen(false) }, [pathname])
+
+  if (pathname?.includes("admin")) return null
 
   const activeGenre = genres.find(g => pathname === `/category/${g.id}`)
 
