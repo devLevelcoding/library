@@ -1,20 +1,18 @@
 import Billboard from "@/components/ui/billboard";
 import NoResults from "@/components/ui/no-results";
-import ProductGrid from "@/components/product-grid";
+import ProductCard from "@/components/product-card";
 import prismadb from "@/lib/prismadb";
 import type { Metadata } from "next";
 import type { Category, Image, Product, Size } from "@prisma/client";
 
 type FullProduct = Product & { images: Image[]; category: Category; size: Size }
 
-export const revalidate = 300 // cache at CDN for 5 minutes
+export const revalidate = 300
 
 export const metadata: Metadata = {
   title: "Home",
-  description: "Browse thousands of products across beauty, electronics, fashion and more.",
+  description: "Browse thousands of books across fiction, mystery, romance and more.",
 }
-
-const PAGE_SIZE = 10
 
 export default async function Home() {
   let setting = null
@@ -26,7 +24,7 @@ export default async function Home() {
       where: { isArchived: false },
       include: { category: true, size: true, images: true },
       orderBy: { createdAt: "desc" },
-      take: PAGE_SIZE,
+      take: 10,
     })
   } catch {
     // DB not available at build time
@@ -36,7 +34,11 @@ export default async function Home() {
     <div>
       {setting && <Billboard imageUrl={setting.billboardImageUrl} title={setting.billboardTitle} />}
       {products.length === 0 && <NoResults />}
-      <ProductGrid initialProducts={products} pageSize={PAGE_SIZE} />
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-6">
+        {products.map((product, i) => (
+          <ProductCard key={product.id} product={product} priority={i < 4} />
+        ))}
+      </div>
     </div>
   )
 }

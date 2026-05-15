@@ -9,8 +9,10 @@ import { Button } from "./ui/button"
 import { ShoppingCart, X } from "lucide-react"
 import useCart from "@/hooks/use-cart"
 
+interface TagRef { id: string; name: string; color: string }
+
 interface ProductCardProps {
-  product: Product & { images: Image[]; category: Category }
+  product: Product & { images: Image[]; category: Category; tags?: { tag: TagRef }[] }
   priority?: boolean
   onImageSettled?: () => void
 }
@@ -60,7 +62,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
             fill
             src={imageUrl}
             alt={product.name}
-            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+            quality={75}
             className={`aspect-square object-cover transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
             priority={priority}
             onLoad={handleSettled}
@@ -90,6 +93,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
         <h2 className="text-lg font-semibold text-neutral-800">{truncate(product.name, 30)}</h2>
         <p className="text-sm text-muted-foreground">{product.category.name}</p>
       </div>
+      {product.tags && product.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {product.tags.slice(0, 3).map(({ tag }) => (
+            <span
+              key={tag.id}
+              className="text-[10px] font-medium rounded-full px-2 py-0.5 text-white"
+              style={{ backgroundColor: tag.color }}
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      )}
       <div>
         <p className="font-medium">{formatter.format(Number(product.price))}</p>
       </div>

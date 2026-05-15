@@ -1,0 +1,9 @@
+# Turso Database — devlevelcoding account (book-store)
+# Dashboard: https://app.turso.tech/devlevelcoding/databases/book-store
+
+TURSO_DATABASE_URL=libsql://book-store-devlevelcoding.aws-us-east-1.turso.io
+TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3Nzg4NjU3NDUsImlkIjoiMDE5ZTJjYTktMGYwMS03ZjUyLThiNDgtYTYwZGRjMTZkNzQ2IiwicmlkIjoiMTZkMGRkMTQtOWI4Yi00NzZlLWI3MTMtOTY4OWFmYWYxZDEyIn0.GlszG26RnSP8tQSZkHXY3rsDCVyTsDzj7vxRCOAny4e_qRmozH1sqyB3XcwDsVkIYFGZXSMcnh13Q_gRgpudCg
+
+# To init schema + seed:
+# TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... npx tsx scripts/init-book-store.ts
+# TURSO_DATABASE_URL=... TURSO_AUTH_TOKEN=... npx tsx prisma/seed-books.ts
