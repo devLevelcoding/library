@@ -1,6 +1,6 @@
 # Shop 2.0 — Feature Tracker
 
-Last push: `1.7_whishList` branch
+Last push: `1.8_badges` branch
 
 ## Features
 
@@ -19,6 +19,7 @@ Last push: `1.7_whishList` branch
 | Recently Viewed | Horizontal scroll carousel of last 6 books browsed. Tracked in localStorage via Zustand. Persists across sessions. Appears at the bottom of every product page, hides the current product. Left/right arrow controls | 1.5_viewed | UnTestedByMarian |
 | Customers Also Bought | Scored recommendations: +2 per shared tag, +1 same category. GET /api/recommendations returns up to 8 ranked products. Horizontal scroll carousel with per-card Add to Cart button | 1.6_recommendations | UnTestedByMarian |
 | Wishlist / Save for Later | Heart button on every product card (hover overlay) and product page. Zustand store persisted to localStorage. /wishlist page with Add to Cart + Remove per book. Heart icon in navbar with badge count. Wishlist link in user dropdown | 1.7_whishList | UnTestedByMarian |
+| Stock Badges | "In stock" / "Only N left" / "Out of stock" pill badges. Deterministic derived stock on cards (no N+1). Real stock stored in Turso via GET+PUT /api/stock/[productId] (admin-only PUT). StockStatus on product page fetches real value. Cart button disabled when out of stock | 1.8_badges | UnTestedByMarian |
 
 ## Status legend
 

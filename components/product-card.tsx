@@ -12,6 +12,8 @@ import useCurrency from "@/hooks/use-currency"
 import useCompare from "@/hooks/use-compare"
 import { QuickViewModal, QuickViewProduct } from "./quick-view-modal"
 import { WishlistButton } from "./wishlist-button"
+import { StockBadge } from "./stock-badge"
+import { deriveStock } from "@/lib/stock"
 
 interface TagRef { id: string; name: string; color: string }
 
@@ -29,6 +31,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
   const { currency, rate } = useCurrency()
   const compare = useCompare()
   const inCompare = mounted && !!compare.items.find(p => p.id === product.id)
+  const stock = deriveStock(product.id)
+  const isOutOfStock = stock === 0
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -73,6 +77,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
         className="bg-white group border p-3 rounded-md flex flex-col gap-y-3 hover:shadow-md transition-shadow"
       >
         <div className="aspect-square bg-gray-100 relative flex items-center justify-center overflow-hidden">
+          {/* Stock badge — top-left corner */}
+          <div className="absolute top-2 left-2 z-10">
+            <StockBadge stock={stock} />
+          </div>
           {validImage && !imageLoaded && (
             <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-shimmer bg-[length:200%_100%]" />
           )}
@@ -110,7 +118,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
                     <X size={16} aria-hidden="true" />
                   </Button>
                 ) : (
-                  <Button onClick={onAddToCart} variant="outline" className="border-neutral-300 bg-white/90" aria-label="Add to cart">
+                  <Button onClick={onAddToCart} variant="outline" className="border-neutral-300 bg-white/90" aria-label="Add to cart" disabled={isOutOfStock}>
                     <ShoppingCart size={16} aria-hidden="true" />
                   </Button>
                 )}
@@ -157,7 +165,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
                 Remove from cart <X aria-hidden="true" />
               </Button>
             ) : (
-              <Button onClick={onAddToCart} className="flex items-center gap-x-2" aria-label={`Add ${product.name} to cart`}>
+              <Button onClick={onAddToCart} className="flex items-center gap-x-2" aria-label={`Add ${product.name} to cart`} disabled={isOutOfStock}>
                 Add To Cart <ShoppingCart aria-hidden="true" />
               </Button>
             )}

@@ -12,6 +12,7 @@ import { BOOK_VARIANTS, BookVariant, variantPrice } from "@/lib/variants"
 import { StickyCartBar } from "./sticky-cart-bar"
 import { StockAlertForm } from "./stock-alert-form"
 import { WishlistButton } from "./wishlist-button"
+import { StockStatus } from "./stock-status"
 
 interface InfoProps {
   data: Product & { size: Size; images: []; category: Category }
@@ -57,6 +58,8 @@ const Info: React.FC<InfoProps> = ({ data }) => {
           <p className="text-lg text-muted-foreground line-through">{formatPrice(basePrice, currency, rate)}</p>
         )}
       </div>
+
+      <StockStatus productId={data.id} />
 
       <hr />
 
