@@ -7,6 +7,7 @@ import React from "react"
 import SearchBar from "./search-bar"
 import BookGenreMenu from "./book-genre-menu"
 import { BookMarked } from "lucide-react"
+import { CurrencySelector } from "./currency-selector"
 
 interface NavbarProps {
   currentUser: User | null
@@ -31,8 +32,9 @@ const Navbar: React.FC<NavbarProps> = async ({ currentUser }) => {
             <SearchBar />
           </div>
 
-          {/* right: admin + user */}
+          {/* right: currency + admin + user */}
           <div className="flex items-center shrink-0 gap-2">
+            <CurrencySelector />
             {currentUser?.role === "admin" && <AdminNav className="mr-2" />}
             <UserNav currentUser={currentUser} />
           </div>

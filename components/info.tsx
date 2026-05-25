@@ -3,9 +3,10 @@
 import React, { MouseEventHandler, useEffect, useState } from "react";
 import { ShoppingCart, X } from "lucide-react";
 import { Category, Product, Size } from "@prisma/client";
-import { formatter } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { Button } from "./ui/button";
 import useCart from "@/hooks/use-cart";
+import useCurrency from "@/hooks/use-currency";
 
 interface InfoProps {
     data: Product & {
@@ -20,6 +21,7 @@ const Info: React.FC<InfoProps> = ({
 }) => {
     const [mounted, setMounted] = useState(false)
     const cart = useCart()
+    const { currency, rate } = useCurrency()
 
     useEffect(() => {
         setMounted(true)
@@ -46,7 +48,7 @@ const Info: React.FC<InfoProps> = ({
         <h1 className="text-3xl font-bold text-gray-900">{data.name}</h1>
         <div className="mt-3 flex items-end justify-between">
             <p className="text-2xl text-gray-900">
-                { formatter.format(Number(data.price)) }
+                { formatPrice(Number(data.price), currency, rate) }
             </p>
         </div>
         <hr className="my-4"/>

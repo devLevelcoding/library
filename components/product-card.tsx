@@ -1,13 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { formatter, truncate } from "@/lib/utils"
+import { formatPrice, truncate } from "@/lib/utils"
 import { Category, Image, Product } from "@prisma/client"
 import NextImage from "next/image"
 import React, { useEffect, useState } from "react"
 import { Button } from "./ui/button"
 import { ShoppingCart, X } from "lucide-react"
 import useCart from "@/hooks/use-cart"
+import useCurrency from "@/hooks/use-currency"
+import useCompare from "@/hooks/use-compare"
+import { ArrowLeftRight } from "lucide-react"
 
 interface TagRef { id: string; name: string; color: string }
 
@@ -21,6 +24,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
   const [mounted, setMounted] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const cart = useCart()
+  const { currency, rate } = useCurrency()
+  const compare = useCompare()
+  const inCompare = mounted && !!compare.items.find(p => p.id === product.id)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -73,17 +79,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
           <span className="text-xs text-gray-400">No image</span>
         )}
         {mounted && (
-          <div className="opacity-0 group-hover:opacity-100 transition absolute w-full px-6 bottom-5">
-            <div className="flex items-center justify-center gap-x-6">
+          <div className="opacity-0 group-hover:opacity-100 transition absolute w-full px-4 bottom-3">
+            <div className="flex items-center justify-center gap-x-2">
               {cartHasProduct ? (
                 <Button onClick={onRemoveFromCart} variant="outline" className="border-neutral-300" aria-label={`Remove ${product.name} from cart`}>
-                  <X size={25} className="text-neutral-800" aria-hidden="true" />
+                  <X size={18} className="text-neutral-800" aria-hidden="true" />
                 </Button>
               ) : (
                 <Button onClick={onAddToCart} variant="outline" className="border-neutral-300" aria-label={`Add ${product.name} to cart`}>
-                  <ShoppingCart size={25} className="text-neutral-800" aria-hidden="true" />
+                  <ShoppingCart size={18} className="text-neutral-800" aria-hidden="true" />
                 </Button>
               )}
+              <Button
+                onClick={e => { e.preventDefault(); inCompare ? compare.removeItem(product.id) : compare.addItem({ id: product.id, name: product.name, price: Number(product.price), category: product.category.name, author: (product as any).author, image: product.images?.[0]?.url, tags: (product as any).tags }) }}
+                variant="outline"
+                className={`border-neutral-300 ${inCompare ? "bg-primary text-primary-foreground border-primary" : ""}`}
+                aria-label="Compare"
+              >
+                <ArrowLeftRight size={18} aria-hidden="true" />
+              </Button>
             </div>
           </div>
         )}
@@ -107,7 +121,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
         </div>
       )}
       <div>
-        <p className="font-medium">{formatter.format(Number(product.price))}</p>
+        <p className="font-medium">{formatPrice(Number(product.price), currency, rate)}</p>
       </div>
 
       {mounted && (

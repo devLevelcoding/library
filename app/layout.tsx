@@ -7,6 +7,7 @@ import { ToastProvider } from '@/providers/toast-provider'
 import { getCurrentUser } from '@/actions/get-current-user'
 import Footer from '@/components/footer'
 import { NavigationProgress } from '@/components/navigation-progress'
+import { CompareBar } from '@/components/compare-bar'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
@@ -44,6 +45,7 @@ export default async function RootLayout({
           </Container>
         </main>
         <Footer />
+        <CompareBar />
       </body>
     </html>
   )

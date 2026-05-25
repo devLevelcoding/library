@@ -1,98 +1,147 @@
 "use client"
 
-import { AccountModal } from "@/components/modals/account-modal";
-import { Button } from "@/components/ui/button";
-import useCart from "@/hooks/use-cart";
-import { formatter } from "@/lib/utils";
-import { User } from "@prisma/client";
-import axios from "axios";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, { MouseEventHandler, useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
+import { AccountModal } from "@/components/modals/account-modal"
+import { Button } from "@/components/ui/button"
+import useCart from "@/hooks/use-cart"
+import { formatPrice } from "@/lib/utils"
+import useCurrency from "@/hooks/use-currency"
+import { User } from "@prisma/client"
+import axios from "axios"
+import { useRouter, useSearchParams } from "next/navigation"
+import React, { MouseEventHandler, useEffect, useState } from "react"
+import { toast } from "react-hot-toast"
+import { Tag, X, Loader2 } from "lucide-react"
 
 interface SummaryProps {
-    currentUser: User | null
+  currentUser: User | null
 }
 
-const Summary: React.FC<SummaryProps> = ({
-    currentUser
-}) => {
-    const [open, setOpen] = useState(false)
-    const cart = useCart()
-    const searchParams = useSearchParams()
-    const router = useRouter()
+const Summary: React.FC<SummaryProps> = ({ currentUser }) => {
+  const [open, setOpen] = useState(false)
+  const cart = useCart()
+  const { currency, rate } = useCurrency()
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
-    const subtotal = cart.items.reduce((total, item) => {
-        return total + Number(item.price)
-    }, 0);
+  // Gift card state
+  const [giftCode, setGiftCode] = useState("")
+  const [giftDiscount, setGiftDiscount] = useState(0)
+  const [appliedCode, setAppliedCode] = useState("")
+  const [giftLoading, setGiftLoading] = useState(false)
 
-    useEffect(() => {
-        if (searchParams?.get('success')) {
-            toast.success('Payment completed!')
-            cart.removeAll()
-        }
+  const subtotal = cart.items.reduce((total, item) => total + Number(item.price), 0)
+  const total = Math.max(0, subtotal - giftDiscount)
 
-        if (searchParams?.get('cancelled')) {
-            toast.error('Something went wrong')
-        }
-    }, [searchParams, cart, cart.removeAll])
+  useEffect(() => {
+    if (searchParams?.get("success")) { toast.success("Payment completed!"); cart.removeAll() }
+    if (searchParams?.get("cancelled")) toast.error("Something went wrong")
+  }, [searchParams, cart, cart.removeAll])
 
-    const onRemoveAll: MouseEventHandler<HTMLButtonElement> = (event) => {
-        event.stopPropagation()
-        cart.removeAll()
+  const applyGiftCard = async () => {
+    if (!giftCode.trim()) return
+    setGiftLoading(true)
+    try {
+      const res = await fetch("/api/gift-cards/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: giftCode }),
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setGiftDiscount(data.amount)
+        setAppliedCode(data.code)
+        setGiftCode("")
+        toast.success(`Gift card applied! –${formatPrice(data.amount, currency, rate)} discount`)
+      } else {
+        toast.error(data.error ?? "Invalid code")
+      }
+    } catch {
+      toast.error("Could not validate gift card")
+    } finally {
+      setGiftLoading(false)
     }
+  }
 
-    const onCheckout = () => {
-        if (!currentUser?.id) {
-            setOpen(true)
-        } else {
-            checkout()
-        } 
-    }
+  const removeGiftCard = () => { setGiftDiscount(0); setAppliedCode("") }
 
-    const onAccountConfirm = () => {
-        router.push('/sign-up')
-    }
+  const onRemoveAll: MouseEventHandler<HTMLButtonElement> = (e) => { e.stopPropagation(); cart.removeAll() }
 
-    const checkout = async () => {
-        let response = await axios.post('/api/checkout', {
-            productsId: cart.items.map(item => item.id)
-        })
+  const onCheckout = () => { !currentUser?.id ? setOpen(true) : checkout() }
 
-        window.location = response.data.url
-    }
+  const checkout = async () => {
+    const response = await axios.post("/api/checkout", { productsId: cart.items.map(i => i.id) })
+    window.location = response.data.url
+  }
 
-    return <>
-        <div className="bg-gray-50 px-5 py-5">
-            <div className="text-gray-700 flex flex-col space-y-2">
-                <div className="flex justify-between items-center">
-                    <span className="text-md">Subtotal</span>
-                    <span className="text-bold">{ formatter.format(subtotal) }</span>
-                </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-md">Shipping</span>
-                    <span className="text-bold">$0</span>
-                </div>
+  return (
+    <>
+      <div className="bg-gray-50 px-5 py-5 rounded-lg">
+        {/* Gift card input */}
+        <div className="mb-4">
+          {appliedCode ? (
+            <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-sm text-green-700">
+                <Tag className="h-3.5 w-3.5" />
+                <span className="font-medium">{appliedCode}</span>
+                <span>–{formatPrice(giftDiscount, currency, rate)}</span>
+              </div>
+              <button onClick={removeGiftCard} className="text-green-600 hover:text-green-800">
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
-            <hr className="my-3"/>
-            <div className="flex flex-col space-y-3">
-                <div className="flex justify-between items-center">
-                    <span className="text-xl font-semibold">Total</span>
-                    <span className="font-bold text-lg flex justify-end flex-col">
-                        { formatter.format(subtotal) }
-                    </span>
-                </div>
-                <div className="flex justify-end pr-4">
-                    <span className="text-sm text-gray-600 font-light">including VAT</span>
-                </div>
-                <Button onClick={onRemoveAll} variant="outline" className="text-md text-muted-foreground hover:text-muted-foreground">
-                    Empty Cart
-                </Button>
-                <Button onClick={onCheckout}    className="text-md">Checkout</Button>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={giftCode}
+                onChange={e => setGiftCode(e.target.value.toUpperCase())}
+                onKeyDown={e => e.key === "Enter" && applyGiftCard()}
+                placeholder="Gift card code"
+                className="flex-1 border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <Button size="sm" variant="outline" onClick={applyGiftCard} disabled={giftLoading || !giftCode.trim()}>
+                {giftLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Apply"}
+              </Button>
             </div>
+          )}
         </div>
-        <AccountModal loading={false} isOpen={open} onConfirm={onAccountConfirm} onClose={() => setOpen(false)}/>
+
+        <div className="text-gray-700 flex flex-col space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-md">Subtotal</span>
+            <span>{formatPrice(subtotal, currency, rate)}</span>
+          </div>
+          {giftDiscount > 0 && (
+            <div className="flex justify-between items-center text-green-600">
+              <span className="text-md">Gift card</span>
+              <span>–{formatPrice(giftDiscount, currency, rate)}</span>
+            </div>
+          )}
+          <div className="flex justify-between items-center">
+            <span className="text-md">Shipping</span>
+            <span>Free</span>
+          </div>
+        </div>
+
+        <hr className="my-3" />
+
+        <div className="flex flex-col space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-xl font-semibold">Total</span>
+            <span className="font-bold text-lg">{formatPrice(total, currency, rate)}</span>
+          </div>
+          <div className="flex justify-end pr-4">
+            <span className="text-sm text-gray-600 font-light">including VAT</span>
+          </div>
+          <Button onClick={onRemoveAll} variant="outline" className="text-muted-foreground hover:text-muted-foreground">
+            Empty Cart
+          </Button>
+          <Button onClick={onCheckout}>Checkout</Button>
+        </div>
+      </div>
+      <AccountModal loading={false} isOpen={open} onConfirm={() => router.push("/sign-up")} onClose={() => setOpen(false)} />
     </>
+  )
 }
- 
-export default Summary;
+
+export default Summary

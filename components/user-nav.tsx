@@ -10,7 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { ShoppingCart, User as UserIcon } from "lucide-react"
+import { ShoppingCart, User as UserIcon, Star } from "lucide-react"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import { User } from "@prisma/client"
@@ -26,13 +26,17 @@ export const UserNav: React.FC<UserNavProps> = ({
     currentUser,
 }) => {
     const [mounted, setMounted] = useState(false)
+    const [points, setPoints] = useState<number | null>(null)
     const cart = useCart()
     const pathname = usePathname()
     const router = useRouter()
 
     useEffect(() => {
         setMounted(true)
-    }, [])
+        if (currentUser) {
+            fetch("/api/loyalty").then(r => r.json()).then(d => setPoints(d.points)).catch(() => {})
+        }
+    }, [currentUser])
 
     if (!mounted) return null
 
@@ -90,6 +94,12 @@ export const UserNav: React.FC<UserNavProps> = ({
                                 My Orders
                             </Link>
                         </DropdownMenuItem>
+                        {points !== null && (
+                            <DropdownMenuItem className="flex items-center gap-1.5 text-amber-600 font-medium cursor-default" onSelect={e => e.preventDefault()}>
+                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                                {points} loyalty points
+                            </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem>
                             <button onClick={(e) => {e.stopPropagation(); signOut()}}>
                                 Sign Out
