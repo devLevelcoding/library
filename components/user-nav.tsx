@@ -10,12 +10,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { ShoppingCart, User as UserIcon, Star } from "lucide-react"
+import { ShoppingCart, User as UserIcon, Star, Heart } from "lucide-react"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import { User } from "@prisma/client"
 import { signOut } from "next-auth/react"
 import useCart from "@/hooks/use-cart"
+import useWishlist from "@/hooks/use-wishlist"
 import { useState, useEffect } from "react"
   
 interface UserNavProps {
@@ -28,6 +29,7 @@ export const UserNav: React.FC<UserNavProps> = ({
     const [mounted, setMounted] = useState(false)
     const [points, setPoints] = useState<number | null>(null)
     const cart = useCart()
+    const wishlist = useWishlist()
     const pathname = usePathname()
     const router = useRouter()
 
@@ -42,12 +44,26 @@ export const UserNav: React.FC<UserNavProps> = ({
 
     return <nav className='flex items-center space-x-4 lg:space-x-6 ml-auto'>
         {!pathname?.includes('/admin') && (
-            <button className="flex items-center gap-x-1 text-sm" onClick={() => router.push('/cart')}>
-                <ShoppingCart size={20}/>
-                {cart.items.length > 0 && (
-                    <>({cart.items.length})</>
+            <>
+              <button
+                className="relative flex items-center gap-x-1 text-sm"
+                onClick={() => router.push('/wishlist')}
+                aria-label="Wishlist"
+              >
+                <Heart size={20} className={wishlist.items.length > 0 ? "fill-rose-500 text-rose-500" : ""} />
+                {wishlist.items.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
+                    {wishlist.items.length}
+                  </span>
                 )}
-            </button>
+              </button>
+              <button className="flex items-center gap-x-1 text-sm" onClick={() => router.push('/cart')}>
+                  <ShoppingCart size={20}/>
+                  {cart.items.length > 0 && (
+                      <>({cart.items.length})</>
+                  )}
+              </button>
+            </>
         )}
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -92,6 +108,15 @@ export const UserNav: React.FC<UserNavProps> = ({
                         <DropdownMenuItem>
                             <Link href="/my-orders">
                                 My Orders
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <Link href="/wishlist" className="flex items-center gap-1.5">
+                                <Heart className="h-3.5 w-3.5" />
+                                Wishlist
+                                {wishlist.items.length > 0 && (
+                                    <span className="ml-auto text-xs text-muted-foreground">{wishlist.items.length}</span>
+                                )}
                             </Link>
                         </DropdownMenuItem>
                         {points !== null && (

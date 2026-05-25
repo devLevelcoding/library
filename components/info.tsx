@@ -11,6 +11,7 @@ import { VariantSelector } from "./variant-selector"
 import { BOOK_VARIANTS, BookVariant, variantPrice } from "@/lib/variants"
 import { StickyCartBar } from "./sticky-cart-bar"
 import { StockAlertForm } from "./stock-alert-form"
+import { WishlistButton } from "./wishlist-button"
 
 interface InfoProps {
   data: Product & { size: Size; images: []; category: Category }
@@ -65,7 +66,7 @@ const Info: React.FC<InfoProps> = ({ data }) => {
         onChange={setSelectedVariant}
       />
 
-      <div className="flex items-center gap-x-3 mt-2">
+      <div className="flex items-center gap-x-3 mt-2 flex-wrap">
         {cartHasItem ? (
           <Button ref={addToCartRef} onClick={onRemoveFromCart} variant="outline" className="flex items-center gap-x-2">
             Remove from cart <X />
@@ -75,6 +76,17 @@ const Info: React.FC<InfoProps> = ({ data }) => {
             Add {selectedVariant.format} to Cart <ShoppingCart />
           </Button>
         )}
+        <WishlistButton
+          product={{
+            id: data.id,
+            name: data.name,
+            price: finalPrice,
+            image: (data as any).images?.[0]?.url ?? "",
+            category: data.category.name,
+            author: (data as any).author ?? undefined,
+          }}
+          variant="button"
+        />
       </div>
 
       <StockAlertForm productId={data.id} productName={data.name} />

@@ -11,6 +11,7 @@ import useCart from "@/hooks/use-cart"
 import useCurrency from "@/hooks/use-currency"
 import useCompare from "@/hooks/use-compare"
 import { QuickViewModal, QuickViewProduct } from "./quick-view-modal"
+import { WishlistButton } from "./wishlist-button"
 
 interface TagRef { id: string; name: string; color: string }
 
@@ -122,6 +123,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
                 >
                   <ArrowLeftRight size={16} aria-hidden="true" />
                 </Button>
+                {/* Wishlist */}
+                <WishlistButton
+                  product={{ id: product.id, name: product.name, price: Number(product.price), image: imageUrl ?? "", category: product.category.name, author: (product as any).author }}
+                  size={16}
+                />
               </div>
             </div>
           )}

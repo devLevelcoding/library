@@ -1,6 +1,6 @@
 # Shop 2.0 — Feature Tracker
 
-Last push: `1.6_recommendations` branch
+Last push: `1.7_whishList` branch
 
 ## Features
 
@@ -18,6 +18,7 @@ Last push: `1.6_recommendations` branch
 | Product Reviews & Ratings | Star ratings (1–5), optional title, review text, verified buyer badge (checks OrderItem). Rating summary with distribution bar. One review per user per product (upsert). Review form on product page | 1.4_reviews_ratings | UnTestedByMarian |
 | Recently Viewed | Horizontal scroll carousel of last 6 books browsed. Tracked in localStorage via Zustand. Persists across sessions. Appears at the bottom of every product page, hides the current product. Left/right arrow controls | 1.5_viewed | UnTestedByMarian |
 | Customers Also Bought | Scored recommendations: +2 per shared tag, +1 same category. GET /api/recommendations returns up to 8 ranked products. Horizontal scroll carousel with per-card Add to Cart button | 1.6_recommendations | UnTestedByMarian |
+| Wishlist / Save for Later | Heart button on every product card (hover overlay) and product page. Zustand store persisted to localStorage. /wishlist page with Add to Cart + Remove per book. Heart icon in navbar with badge count. Wishlist link in user dropdown | 1.7_whishList | UnTestedByMarian |
 
 ## Status legend
 
