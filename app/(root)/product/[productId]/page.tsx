@@ -9,6 +9,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { ProductReviews } from "@/components/product-reviews";
 import { TrackViewed } from "@/components/track-viewed";
 import { RecentlyViewed } from "@/components/recently-viewed";
+import { CustomersAlsoBought } from "@/components/customers-also-bought";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ productId: string }> }): Promise<Metadata> {
@@ -78,8 +79,10 @@ const ProductPage = async ({ params }: { params: Promise<{ productId: string }> 
         <ProductReviews productId={productId} />
       </div>
 
+      <CustomersAlsoBought productId={productId} />
+
       {suggestedProducts.length > 0 && (
-        <div className="my-2 font-semibold text-lg">
+        <div className="my-2 px-4 sm:px-6 lg:px-8 font-semibold text-lg">
           <h2>You might also like</h2>
         </div>
       )}
