@@ -1,6 +1,6 @@
 # Shop 2.0 — Feature Tracker
 
-Last push: `1.2_view_sticky` branch
+Last push: `1.3_emails_alerts` branch
 
 ## Features
 
@@ -13,6 +13,8 @@ Last push: `1.2_view_sticky` branch
 | Product Variants | Paperback / Hardcover / eBook / Audiobook selector on product page with per-format pricing (multipliers: 1.0x / 1.35x / 0.7x / 1.15x). Variant label shown in cart, supports adding same book in multiple formats | 1.1_variants | UnTestedByMarian |
 | Quick View Modal | Eye button on product card hover opens a modal with cover, title, author, tags, price, variant selector and Add to Cart — no page navigation needed | 1.2_view_sticky | UnTestedByMarian |
 | Sticky Add-to-Cart Bar | Slides in from top when the main buy button scrolls off screen on the product page. Shows thumbnail, title, selected format, price and cart toggle button | 1.2_view_sticky | UnTestedByMarian |
+| Abandoned Cart Emails | Cart tracked in Turso when logged-in user visits cart page. GET /api/cart-abandon-check finds carts idle >1h and sends notification. Supports Telegram bot / Resend / console fallback | 1.3_emails_alerts | UnTestedByMarian |
+| Back in Stock Alerts | "Notify me" email input on every product page. Subscriptions stored in Turso. POST /api/stock-alerts/notify/[productId] triggers alerts to all subscribers. Same Telegram/Resend/console notify helper | 1.3_emails_alerts | UnTestedByMarian |
 
 ## Status legend
 

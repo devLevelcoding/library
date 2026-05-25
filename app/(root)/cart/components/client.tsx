@@ -20,6 +20,16 @@ const CartClient: React.FC<CartClientProps> = ({
         setMounted(true)
     }, [])
 
+    // Track cart server-side for abandoned-cart detection (fires silently)
+    useEffect(() => {
+        if (!currentUser || items.length === 0) return
+        fetch("/api/cart-track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ items }),
+        }).catch(() => {})
+    }, [currentUser, items])
+
     if (!mounted) return null
 
     return <div className="bg-white">

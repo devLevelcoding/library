@@ -10,6 +10,7 @@ import useCurrency from "@/hooks/use-currency"
 import { VariantSelector } from "./variant-selector"
 import { BOOK_VARIANTS, BookVariant, variantPrice } from "@/lib/variants"
 import { StickyCartBar } from "./sticky-cart-bar"
+import { StockAlertForm } from "./stock-alert-form"
 
 interface InfoProps {
   data: Product & { size: Size; images: []; category: Category }
@@ -75,6 +76,8 @@ const Info: React.FC<InfoProps> = ({ data }) => {
           </Button>
         )}
       </div>
+
+      <StockAlertForm productId={data.id} productName={data.name} />
 
       <StickyCartBar
         product={{ id: data.id, name: data.name, price: basePrice, image: (data as any).images?.[0]?.url }}
