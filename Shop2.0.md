@@ -1,6 +1,6 @@
 # Shop 2.0 — Feature Tracker
 
-Last push: `1.3_emails_alerts` branch
+Last push: `1.4_reviews_ratings` branch
 
 ## Features
 
@@ -15,6 +15,7 @@ Last push: `1.3_emails_alerts` branch
 | Sticky Add-to-Cart Bar | Slides in from top when the main buy button scrolls off screen on the product page. Shows thumbnail, title, selected format, price and cart toggle button | 1.2_view_sticky | UnTestedByMarian |
 | Abandoned Cart Emails | Cart tracked in Turso when logged-in user visits cart page. GET /api/cart-abandon-check finds carts idle >1h and sends notification. Supports Telegram bot / Resend / console fallback | 1.3_emails_alerts | UnTestedByMarian |
 | Back in Stock Alerts | "Notify me" email input on every product page. Subscriptions stored in Turso. POST /api/stock-alerts/notify/[productId] triggers alerts to all subscribers. Same Telegram/Resend/console notify helper | 1.3_emails_alerts | UnTestedByMarian |
+| Product Reviews & Ratings | Star ratings (1–5), optional title, review text, verified buyer badge (checks OrderItem). Rating summary with distribution bar. One review per user per product (upsert). Review form on product page | 1.4_reviews_ratings | UnTestedByMarian |
 
 ## Status legend
 

@@ -6,6 +6,7 @@ import Info from "@/components/info";
 import prismadb from "@/lib/prismadb";
 import ProductCard from "@/components/product-card";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+import { ProductReviews } from "@/components/product-reviews";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ productId: string }> }): Promise<Metadata> {
@@ -62,6 +63,7 @@ const ProductPage = async ({ params }: { params: Promise<{ productId: string }> 
           </div>
         </div>
         <hr className="my-10" />
+        <ProductReviews productId={productId} />
       </div>
 
       {suggestedProducts.length > 0 && (
