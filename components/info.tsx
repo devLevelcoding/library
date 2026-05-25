@@ -1,6 +1,6 @@
 "use client"
 
-import React, { MouseEventHandler, useEffect, useState } from "react"
+import React, { MouseEventHandler, useEffect, useRef, useState } from "react"
 import { ShoppingCart, X } from "lucide-react"
 import { Category, Product, Size } from "@prisma/client"
 import { formatPrice } from "@/lib/utils"
@@ -9,6 +9,7 @@ import useCart from "@/hooks/use-cart"
 import useCurrency from "@/hooks/use-currency"
 import { VariantSelector } from "./variant-selector"
 import { BOOK_VARIANTS, BookVariant, variantPrice } from "@/lib/variants"
+import { StickyCartBar } from "./sticky-cart-bar"
 
 interface InfoProps {
   data: Product & { size: Size; images: []; category: Category }
@@ -19,6 +20,7 @@ const Info: React.FC<InfoProps> = ({ data }) => {
   const [selectedVariant, setSelectedVariant] = useState<BookVariant>(BOOK_VARIANTS[0])
   const cart = useCart()
   const { currency, rate } = useCurrency()
+  const addToCartRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -64,15 +66,21 @@ const Info: React.FC<InfoProps> = ({ data }) => {
 
       <div className="flex items-center gap-x-3 mt-2">
         {cartHasItem ? (
-          <Button onClick={onRemoveFromCart} variant="outline" className="flex items-center gap-x-2">
+          <Button ref={addToCartRef} onClick={onRemoveFromCart} variant="outline" className="flex items-center gap-x-2">
             Remove from cart <X />
           </Button>
         ) : (
-          <Button onClick={onAddToCart} className="flex items-center gap-x-2">
+          <Button ref={addToCartRef} onClick={onAddToCart} className="flex items-center gap-x-2">
             Add {selectedVariant.format} to Cart <ShoppingCart />
           </Button>
         )}
       </div>
+
+      <StickyCartBar
+        product={{ id: data.id, name: data.name, price: basePrice, image: (data as any).images?.[0]?.url }}
+        selectedVariant={selectedVariant}
+        triggerRef={addToCartRef}
+      />
 
       <div className="flex flex-col gap-y-2 text-sm text-muted-foreground">
         <div className="flex gap-2">

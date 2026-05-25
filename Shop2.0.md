@@ -1,6 +1,6 @@
 # Shop 2.0 — Feature Tracker
 
-Last push: `1.1_variants` branch
+Last push: `1.2_view_sticky` branch
 
 ## Features
 
@@ -11,6 +11,8 @@ Last push: `1.1_variants` branch
 | Gift Cards | Auto-creates Turso table, demo codes BOOK10 / BOOK25 / WELCOME5, input in cart summary, validates single-use, shows discount line | shop-1.0 | UnTestedByMarian |
 | Loyalty Points | Auto-creates Turso tables, GET /api/loyalty returns balance, POST /api/loyalty credits 1pt per $1, balance shown with ⭐ in user dropdown | shop-1.0 | UnTestedByMarian |
 | Product Variants | Paperback / Hardcover / eBook / Audiobook selector on product page with per-format pricing (multipliers: 1.0x / 1.35x / 0.7x / 1.15x). Variant label shown in cart, supports adding same book in multiple formats | 1.1_variants | UnTestedByMarian |
+| Quick View Modal | Eye button on product card hover opens a modal with cover, title, author, tags, price, variant selector and Add to Cart — no page navigation needed | 1.2_view_sticky | UnTestedByMarian |
+| Sticky Add-to-Cart Bar | Slides in from top when the main buy button scrolls off screen on the product page. Shows thumbnail, title, selected format, price and cart toggle button | 1.2_view_sticky | UnTestedByMarian |
 
 ## Status legend
 
