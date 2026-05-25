@@ -1,40 +1,48 @@
 import { persist, createJSONStorage } from "zustand/middleware"
+import { Product } from "@prisma/client"
+import { create } from "zustand"
+import toast from "react-hot-toast"
 
-import { Product } from "@prisma/client";
-import { create } from "zustand";
-import toast from "react-hot-toast";
+export type CartProduct = Product & { variantLabel?: string }
 
 interface CartStore {
-    items: Product[]
-    addItem: (data: Product) => void
-    removeItem: (id: string) => void
-    removeAll: () => void
+  items: CartProduct[]
+  addItem: (data: Product, variantLabel?: string, overridePrice?: number) => void
+  removeItem: (id: string, variantLabel?: string) => void
+  removeAll: () => void
 }
 
 const useCart = create(
-    persist<CartStore>((set, get) => ({
-        items: [],
-        addItem: (data: Product) => {
-            const currentItems = get().items
-            const existingItem = currentItems.find(item => item.id === data.id)
+  persist<CartStore>((set, get) => ({
+    items: [],
+    addItem: (data, variantLabel, overridePrice) => {
+      const key = variantLabel ? `${data.id}__${variantLabel}` : data.id
+      const existing = get().items.find(i => itemKey(i) === key)
+      if (existing) { toast("Already in cart."); return }
 
-            if (existingItem) return toast('Product already in cart.')
-
-            set({items: [...get().items, data]})
-            toast.success('The product was added to your cart')
-        },
-        removeItem: (id: string) => {
-            set({items: [...get().items.filter(item => item.id !== id)]})
-            toast.success('The product was removed from your cart.')
-        },
-        removeAll: () => {
-            set({items: []})
-            toast.success('Your shopping cart was emptied.')
-        }
-    }), {
-        name: 'cart-storage',
-        storage: createJSONStorage(() => localStorage)
-    })
+      const item: CartProduct = {
+        ...data,
+        // store the variant-adjusted price directly on the item
+        price: overridePrice !== undefined ? (overridePrice as any) : data.price,
+        variantLabel,
+      }
+      set({ items: [...get().items, item] })
+      toast.success(variantLabel ? `${variantLabel} added to cart` : "Added to cart")
+    },
+    removeItem: (id, variantLabel) => {
+      const key = variantLabel ? `${id}__${variantLabel}` : id
+      set({ items: get().items.filter(i => itemKey(i) !== key) })
+      toast.success("Removed from cart")
+    },
+    removeAll: () => { set({ items: [] }); toast.success("Cart emptied") },
+  }), {
+    name: "cart-storage",
+    storage: createJSONStorage(() => localStorage),
+  })
 )
+
+function itemKey(item: CartProduct) {
+  return item.variantLabel ? `${item.id}__${item.variantLabel}` : item.id
+}
 
 export default useCart

@@ -1,76 +1,93 @@
 "use client"
 
-import React, { MouseEventHandler, useEffect, useState } from "react";
-import { ShoppingCart, X } from "lucide-react";
-import { Category, Product, Size } from "@prisma/client";
-import { formatPrice } from "@/lib/utils";
-import { Button } from "./ui/button";
-import useCart from "@/hooks/use-cart";
-import useCurrency from "@/hooks/use-currency";
+import React, { MouseEventHandler, useEffect, useState } from "react"
+import { ShoppingCart, X } from "lucide-react"
+import { Category, Product, Size } from "@prisma/client"
+import { formatPrice } from "@/lib/utils"
+import { Button } from "./ui/button"
+import useCart from "@/hooks/use-cart"
+import useCurrency from "@/hooks/use-currency"
+import { VariantSelector } from "./variant-selector"
+import { BOOK_VARIANTS, BookVariant, variantPrice } from "@/lib/variants"
 
 interface InfoProps {
-    data: Product & {
-        size: Size,
-        images: [],
-        category: Category,
-    }
+  data: Product & { size: Size; images: []; category: Category }
 }
 
-const Info: React.FC<InfoProps> = ({
-    data,
-}) => {
-    const [mounted, setMounted] = useState(false)
-    const cart = useCart()
-    const { currency, rate } = useCurrency()
+const Info: React.FC<InfoProps> = ({ data }) => {
+  const [mounted, setMounted] = useState(false)
+  const [selectedVariant, setSelectedVariant] = useState<BookVariant>(BOOK_VARIANTS[0])
+  const cart = useCart()
+  const { currency, rate } = useCurrency()
 
-    useEffect(() => {
-        setMounted(true)
-    }, [])
+  useEffect(() => { setMounted(true) }, [])
 
-    if (!mounted) return null
+  if (!mounted) return null
 
-    const cartHasProduct = cart.items.find(item => item.id === data.id);
+  const basePrice = Number(data.price)
+  const finalPrice = variantPrice(basePrice, selectedVariant.multiplier)
+  const cartHasItem = cart.items.find(
+    i => i.id === data.id && i.variantLabel === selectedVariant.format
+  )
 
-    const onAddToCart: MouseEventHandler<HTMLButtonElement> = (event) => {
-        event.stopPropagation()
+  const onAddToCart: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation()
+    cart.addItem(data, selectedVariant.format, finalPrice)
+  }
 
-        cart.addItem(data)
-    }
+  const onRemoveFromCart: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation()
+    cart.removeItem(data.id, selectedVariant.format)
+  }
 
-    const onRemoveFromCart: MouseEventHandler<HTMLButtonElement> = (event) => {
-        event.stopPropagation()
+  return (
+    <div className="flex flex-col gap-y-5">
+      <h1 className="text-3xl font-bold text-gray-900">{data.name}</h1>
+      {(data as any).author && (
+        <p className="text-base text-muted-foreground">by {(data as any).author}</p>
+      )}
 
-        cart.removeItem(data.id)
-    }
+      <div className="flex items-baseline gap-3">
+        <p className="text-3xl font-bold text-gray-900">{formatPrice(finalPrice, currency, rate)}</p>
+        {selectedVariant.multiplier !== 1 && (
+          <p className="text-lg text-muted-foreground line-through">{formatPrice(basePrice, currency, rate)}</p>
+        )}
+      </div>
 
+      <hr />
 
-    return <div>
-        <h1 className="text-3xl font-bold text-gray-900">{data.name}</h1>
-        <div className="mt-3 flex items-end justify-between">
-            <p className="text-2xl text-gray-900">
-                { formatPrice(Number(data.price), currency, rate) }
-            </p>
+      <VariantSelector
+        basePrice={basePrice}
+        selected={selectedVariant}
+        onChange={setSelectedVariant}
+      />
+
+      <div className="flex items-center gap-x-3 mt-2">
+        {cartHasItem ? (
+          <Button onClick={onRemoveFromCart} variant="outline" className="flex items-center gap-x-2">
+            Remove from cart <X />
+          </Button>
+        ) : (
+          <Button onClick={onAddToCart} className="flex items-center gap-x-2">
+            Add {selectedVariant.format} to Cart <ShoppingCart />
+          </Button>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-y-2 text-sm text-muted-foreground">
+        <div className="flex gap-2">
+          <span className="font-medium text-gray-700">Category:</span>
+          <span>{data.category.name}</span>
         </div>
-        <hr className="my-4"/>
-        <div className="flex flex-col gap-y-6">
-            <div className="flex items-center gap-x-4">
-                <h3 className="font-semibold text-black">Size:</h3>
-                <div>
-                    {data?.size?.name}
-                </div>
-            </div>
-        </div>
-        <div className="mt-10 flex items-center gap-x-3">
-            {!cartHasProduct && <Button onClick={onAddToCart}  className="flex items-center gap-x-2">
-                Add To Cart
-                <ShoppingCart />
-            </Button>}
-            {cartHasProduct && <Button onClick={onRemoveFromCart}  className="flex items-center gap-x-2">
-                Remove from cart
-                <X />
-            </Button>}
-        </div>
-    </div>;
+        {data?.size?.name && (
+          <div className="flex gap-2">
+            <span className="font-medium text-gray-700">Size:</span>
+            <span>{data.size.name}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
- 
-export default Info;
+
+export default Info
