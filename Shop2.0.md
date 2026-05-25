@@ -1,6 +1,6 @@
 # Shop 2.0 — Feature Tracker
 
-Last push: `1.9_discounts` branch
+Last push: `1.9.2_bumdle_pricen` branch
 
 ## Features
 
@@ -21,6 +21,7 @@ Last push: `1.9_discounts` branch
 | Wishlist / Save for Later | Heart button on every product card (hover overlay) and product page. Zustand store persisted to localStorage. /wishlist page with Add to Cart + Remove per book. Heart icon in navbar with badge count. Wishlist link in user dropdown | 1.7_whishList | UnTestedByMarian |
 | Stock Badges | "In stock" / "Only N left" / "Out of stock" pill badges. Deterministic derived stock on cards (no N+1). Real stock stored in Turso via GET+PUT /api/stock/[productId] (admin-only PUT). StockStatus on product page fetches real value. Cart button disabled when out of stock | 1.8_badges | UnTestedByMarian |
 | Discount Codes | % or fixed-amount coupon codes applied at cart. Turso DiscountCode table with type/value/minOrder/maxUses/expiresAt/active. POST /api/discounts/validate checks limits, expiry, min order. Admin CRUD via GET+POST+PATCH /api/discounts. Demo codes: SAVE10 (10%), SUMMER20 (20%), BOOKS5 ($5), WELCOME15 (15% min $20). Separate input from gift card in cart summary | 1.9_discounts | UnTestedByMarian |
+| Bundle Pricing | Auto-applied quantity discounts. Turso BundleRule table (minQty, discount%, label, active). GET /api/bundles public, POST+PATCH admin. Demo: 3→10%, 5→15%, 10→20%. BundleBanner shows progress bar toward next tier when not met, green success banner + "N more for X%" hint when applied. Discount line in cart totals | 1.9.2_bumdle_pricen | UnTestedByMarian |
 
 ## Status legend
 

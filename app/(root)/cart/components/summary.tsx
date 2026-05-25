@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import React, { MouseEventHandler, useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
 import { Tag, X, Loader2, Ticket } from "lucide-react"
+import { BundleBanner } from "@/components/bundle-banner"
 
 interface SummaryProps {
   currentUser: User | null
@@ -36,8 +37,13 @@ const Summary: React.FC<SummaryProps> = ({ currentUser }) => {
   const [appliedDiscount, setAppliedDiscount] = useState("")
   const [discountLoading, setDiscountLoading] = useState(false)
 
+  // Bundle pricing state (auto-applied)
+  const [bundlePercent, setBundlePercent] = useState(0)
+  const [bundleLabel, setBundleLabel] = useState("")
+
   const subtotal = cart.items.reduce((total, item) => total + Number(item.price), 0)
-  const total = Math.max(0, subtotal - giftDiscount - discountAmount)
+  const bundleDiscount = bundlePercent > 0 ? Math.round(subtotal * bundlePercent) / 100 : 0
+  const total = Math.max(0, subtotal - giftDiscount - discountAmount - bundleDiscount)
 
   useEffect(() => {
     if (searchParams?.get("success")) { toast.success("Payment completed!"); cart.removeAll() }
@@ -111,6 +117,12 @@ const Summary: React.FC<SummaryProps> = ({ currentUser }) => {
   return (
     <>
       <div className="bg-gray-50 px-5 py-5 rounded-lg">
+
+        {/* ── Bundle pricing progress / applied banner ── */}
+        <BundleBanner
+          itemCount={cart.items.length}
+          onBundleChange={(pct, lbl) => { setBundlePercent(pct); setBundleLabel(lbl) }}
+        />
 
         {/* ── Gift card ── */}
         <div className="mb-3">
@@ -191,6 +203,12 @@ const Summary: React.FC<SummaryProps> = ({ currentUser }) => {
             <div className="flex justify-between items-center text-blue-600">
               <span className="text-md">Discount ({appliedDiscount})</span>
               <span>–{formatPrice(discountAmount, currency, rate)}</span>
+            </div>
+          )}
+          {bundleDiscount > 0 && (
+            <div className="flex justify-between items-center text-emerald-600">
+              <span className="text-md">Bundle ({bundleLabel})</span>
+              <span>–{formatPrice(bundleDiscount, currency, rate)}</span>
             </div>
           )}
           <div className="flex justify-between items-center">
