@@ -7,6 +7,8 @@ import prismadb from "@/lib/prismadb";
 import ProductCard from "@/components/product-card";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { ProductReviews } from "@/components/product-reviews";
+import { TrackViewed } from "@/components/track-viewed";
+import { RecentlyViewed } from "@/components/recently-viewed";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ productId: string }> }): Promise<Metadata> {
@@ -51,8 +53,18 @@ const ProductPage = async ({ params }: { params: Promise<{ productId: string }> 
     { label: product.name },
   ]
 
+  const recentProduct = {
+    id: product.id,
+    name: product.name,
+    price: Number(product.price),
+    image: (product as any).images?.[0]?.url ?? "",
+    category: product.category.name,
+    author: (product as any).author ?? undefined,
+  }
+
   return (
     <div className="bg-white">
+      <TrackViewed product={recentProduct} />
       <div className="px-4 py-10 sm:px-6 lg:px-8">
         <Breadcrumb items={breadcrumbItems} />
         <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
@@ -73,6 +85,10 @@ const ProductPage = async ({ params }: { params: Promise<{ productId: string }> 
       )}
       <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-10">
         {suggestedProducts.map(p => <ProductCard key={p.id} product={p} />)}
+      </div>
+
+      <div className="px-4 sm:px-6 lg:px-8">
+        <RecentlyViewed excludeId={productId} />
       </div>
     </div>
   )
