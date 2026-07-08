@@ -1,56 +1,13 @@
 "use client"
 
-import React, { useState } from "react";
-
-
-import * as z from "zod"
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from "react-hook-form";
+import React from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-
-const formSchema = z.object({
-    email: z.string().email().min(1),
-    first_name: z.string().min(1),
-    last_name: z.string().min(1),
-    password: z.string().min(8),
-})
-
-type SignUpFormValues = z.infer<typeof formSchema>
+import { useSignUpForm } from "./use-sign-up-form";
 
 const SignUp = () => {
-    const [loading, setLoading] = useState(false)
-    const router = useRouter()
-
-    const form = useForm<SignUpFormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues:  {
-            first_name: '',
-            last_name: '',
-            email: '',
-            password: '',
-        }
-    })
-
-    const onSubmit = async (data: SignUpFormValues) => {
-        try {
-            setLoading(true)
-
-            await axios.post('/api/register', data)
-
-            router.push('/sign-in')
-            toast.success('Your account has been created, please log in')
-
-        } catch (error: any) {
-            toast.error('Ouch, something went wrong!')
-        } finally {
-            setLoading(false)
-        }
-    }
+    const { form, loading, onSubmit } = useSignUpForm()
 
     return <div className="max-w-lg mx-auto min-h-full w-full mt-32">
             <div>
@@ -123,5 +80,5 @@ const SignUp = () => {
             </div>
     </div>;
 }
- 
+
 export default SignUp;

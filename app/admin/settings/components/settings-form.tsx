@@ -1,28 +1,13 @@
 "use client"
 
 import { Setting } from "@prisma/client";
-import React, { useState } from "react";
-
-
-import * as z from "zod"
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from "react-hook-form";
+import React from "react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import ImageUpload from "@/components/ui/image-upload";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const formSchema = z.object({
-    billboardImageUrl: z.string().min(1),
-    billboardTitle: z.string().min(1),
-    currency: z.string(),
-})
-
-type SettingsFormValues = z.infer<typeof formSchema>
+import { CURRENCIES, useSettingsForm } from "./use-settings-form";
 
 interface SettingsFormProps  {
     setting: Setting | null,
@@ -31,38 +16,7 @@ interface SettingsFormProps  {
 const SettingsForm: React.FC<SettingsFormProps> = ({
     setting,
 }) => {
-    const [loading, setLoading] = useState(false)
-    const router = useRouter()
-    const currencies = ['USD', 'EUR', 'RON']
-
-    const form = useForm<SettingsFormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: setting || {
-            billboardImageUrl: '',
-            billboardTitle: '',
-            currency: 'USD',
-        }
-    })
-
-    const onSubmit = async (data: SettingsFormValues) => {
-        try {
-            setLoading(true)
-
-            if (setting) {
-                await axios.patch(`/api/admin/settings/${setting.id}`, data)
-            } else {
-                await axios.post('/api/admin/settings', data)
-            }
-
-            router.refresh()
-            toast.success('Settings successfully saved!')
-
-        } catch (error: any) {
-            toast.error('Ouch, something went wrong!')
-        } finally {
-            setLoading(false)
-        }
-    }
+    const { form, loading, onSubmit } = useSettingsForm({ setting })
 
     return <div>
         <Form {...form}>
@@ -74,9 +28,9 @@ const SettingsForm: React.FC<SettingsFormProps> = ({
                         <FormItem>
                         <FormLabel>Billboard Image</FormLabel>
                         <FormControl>
-                            <ImageUpload 
-                                value={field.value ? [field.value] : []} 
-                                disabled={loading} 
+                            <ImageUpload
+                                value={field.value ? [field.value] : []}
+                                disabled={loading}
                                 onChange={(url) => field.onChange(url)}
                                 onRemove={() => field.onChange('')}
                             />
@@ -112,7 +66,7 @@ const SettingsForm: React.FC<SettingsFormProps> = ({
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                {currencies.map((currency) => (
+                                {CURRENCIES.map((currency) => (
                                     <SelectItem key={currency} value={currency}>{currency}</SelectItem>
                                 ))}
                                 </SelectContent>
@@ -130,5 +84,5 @@ const SettingsForm: React.FC<SettingsFormProps> = ({
         </Form>
     </div>;
 }
- 
+
 export default SettingsForm;

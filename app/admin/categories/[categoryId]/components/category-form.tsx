@@ -1,29 +1,15 @@
 "use client"
 
 import { Category } from "@prisma/client";
-import React, { useState } from "react";
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form";
+import React from "react";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Heading } from "@/components/ui/heading";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const formSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
-  enabled: z.boolean().default(false),
-  parentId: z.string().nullable().optional(),
-})
-
-type CategoryFormValues = z.infer<typeof formSchema>
+import { useCategoryForm } from "./use-category-form";
+import { ParentCategoryField } from "./parent-category-field";
 
 interface CategoryFormProps {
   category: Category | null
@@ -31,46 +17,12 @@ interface CategoryFormProps {
 }
 
 const CategoryForm: React.FC<CategoryFormProps> = ({ category, allCategories }) => {
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
-  const title = category ? "Edit category" : "Create category"
-  const description = category ? "Edit a category." : "Add a new category"
-  const toastMessage = category ? "Category updated." : "Category created."
-  const action = category ? "Save changes" : "Create"
+  const { form, loading, title, description, action, onSubmit } = useCategoryForm({ category })
 
   // exclude self from parent options to avoid circular reference
   const parentOptions = allCategories.filter(
     (c) => c.id !== category?.id && !c.parentId
   )
-
-  const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: category?.name ?? "",
-      description: category?.description ?? "",
-      enabled: category?.enabled ?? false,
-      parentId: category?.parentId ?? null,
-    },
-  })
-
-  const onSubmit = async (data: CategoryFormValues) => {
-    try {
-      setLoading(true)
-      if (category) {
-        await axios.patch(`/api/admin/categories/${category.id}`, data)
-      } else {
-        await axios.post("/api/admin/categories", data)
-      }
-      router.refresh()
-      router.push("/admin/categories")
-      toast.success(toastMessage)
-    } catch {
-      toast.error("Something went wrong.")
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div>
@@ -105,36 +57,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, allCategories }) 
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="parentId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Parent category</FormLabel>
-                <Select
-                  disabled={loading}
-                  onValueChange={(val) => field.onChange(val === "none" ? null : val)}
-                  value={field.value ?? "none"}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="None (top level)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">— None (top level) —</SelectItem>
-                    {parentOptions.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Only top-level categories appear in the main navigation.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <ParentCategoryField control={form.control} parentOptions={parentOptions} loading={loading} />
 
           <FormField
             control={form.control}

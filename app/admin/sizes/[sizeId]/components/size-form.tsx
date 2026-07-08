@@ -1,29 +1,13 @@
 "use client"
 
-import { Size, Setting } from "@prisma/client";
-import React, { useState } from "react";
-
-
-import * as z from "zod"
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from "react-hook-form";
+import { Size } from "@prisma/client";
+import React from "react";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { Heading } from "@/components/ui/heading";
-
-const formSchema = z.object({
-    name: z.string().min(1),
-    value: z.string().min(1),
-    enabled: z.boolean().optional().default(false),
-})
-
-type SizeFormValues = z.infer<typeof formSchema>
+import { useSizeForm } from "./use-size-form";
 
 interface SizeFormProps  {
     size: Size | null,
@@ -32,46 +16,10 @@ interface SizeFormProps  {
 const SizeForm: React.FC<SizeFormProps> = ({
     size,
 }) => {
-    const [loading, setLoading] = useState(false)
-    const router = useRouter()
-
-    const title = size ? 'Edit size' : 'Create size';
-    const description = size ? 'Edit a size.' : 'Add a new size';
-    const toastMessage = size ? 'size updated.' : 'size created.';
-    const action = size ? 'Save changes' : 'Create';
-
-    const form = useForm<SizeFormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: size || {
-            name: '',
-            value: '',
-            enabled: false,
-        }
-    })
-
-    const onSubmit = async (data: SizeFormValues) => {
-        try {
-            setLoading(true)
-
-            if (size) {
-                await axios.patch(`/api/admin/sizes/${size.id}`, data)
-            } else {
-                await axios.post('/api/admin/sizes', data)
-            }
-
-            router.refresh()
-            router.push('/admin/sizes')
-            toast.success(toastMessage)
-
-        } catch (error: any) {
-            toast.error('Please delete first all products using this size')
-        } finally {
-            setLoading(false)
-        }
-    }
+    const { form, loading, title, description, action, onSubmit } = useSizeForm({ size })
 
     return <div>
-        <Heading 
+        <Heading
             title={title}
             description={description}
         />
@@ -136,5 +84,5 @@ const SizeForm: React.FC<SizeFormProps> = ({
         </Form>
     </div>;
 }
- 
+
 export default SizeForm;

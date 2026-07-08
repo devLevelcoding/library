@@ -1,49 +1,31 @@
 "use client"
 
-import React, { MouseEventHandler, useEffect, useRef, useState } from "react"
+import React, { useRef } from "react"
 import { ShoppingCart, X } from "lucide-react"
 import { Category, Product, Size } from "@prisma/client"
 import { formatPrice } from "@/lib/utils"
 import { Button } from "./ui/button"
-import useCart from "@/hooks/use-cart"
-import useCurrency from "@/hooks/use-currency"
 import { VariantSelector } from "./variant-selector"
-import { BOOK_VARIANTS, BookVariant, variantPrice } from "@/lib/variants"
 import { StickyCartBar } from "./sticky-cart-bar"
 import { StockAlertForm } from "./stock-alert-form"
 import { WishlistButton } from "./wishlist-button"
 import { StockStatus } from "./stock-status"
+import { InfoMeta } from "./info-meta"
+import { useInfoCart } from "@/hooks/use-info-cart"
 
 interface InfoProps {
   data: Product & { size: Size; images: []; category: Category }
 }
 
 const Info: React.FC<InfoProps> = ({ data }) => {
-  const [mounted, setMounted] = useState(false)
-  const [selectedVariant, setSelectedVariant] = useState<BookVariant>(BOOK_VARIANTS[0])
-  const cart = useCart()
-  const { currency, rate } = useCurrency()
+  const {
+    mounted, selectedVariant, setSelectedVariant,
+    currency, rate, basePrice, finalPrice, cartHasItem,
+    onAddToCart, onRemoveFromCart,
+  } = useInfoCart(data)
   const addToCartRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => { setMounted(true) }, [])
-
   if (!mounted) return null
-
-  const basePrice = Number(data.price)
-  const finalPrice = variantPrice(basePrice, selectedVariant.multiplier)
-  const cartHasItem = cart.items.find(
-    i => i.id === data.id && i.variantLabel === selectedVariant.format
-  )
-
-  const onAddToCart: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.stopPropagation()
-    cart.addItem(data, selectedVariant.format, finalPrice)
-  }
-
-  const onRemoveFromCart: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.stopPropagation()
-    cart.removeItem(data.id, selectedVariant.format)
-  }
 
   return (
     <div className="flex flex-col gap-y-5">
@@ -100,18 +82,7 @@ const Info: React.FC<InfoProps> = ({ data }) => {
         triggerRef={addToCartRef}
       />
 
-      <div className="flex flex-col gap-y-2 text-sm text-muted-foreground">
-        <div className="flex gap-2">
-          <span className="font-medium text-gray-700">Category:</span>
-          <span>{data.category.name}</span>
-        </div>
-        {data?.size?.name && (
-          <div className="flex gap-2">
-            <span className="font-medium text-gray-700">Size:</span>
-            <span>{data.size.name}</span>
-          </div>
-        )}
-      </div>
+      <InfoMeta categoryName={data.category.name} sizeName={data?.size?.name} />
     </div>
   )
 }

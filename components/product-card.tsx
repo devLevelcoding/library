@@ -3,17 +3,11 @@
 import Link from "next/link"
 import { formatPrice, truncate } from "@/lib/utils"
 import { Category, Image, Product } from "@prisma/client"
-import NextImage from "next/image"
-import React, { useEffect, useState } from "react"
-import { Button } from "./ui/button"
-import { ShoppingCart, X, ArrowLeftRight, Eye } from "lucide-react"
-import useCart from "@/hooks/use-cart"
-import useCurrency from "@/hooks/use-currency"
-import useCompare from "@/hooks/use-compare"
-import { QuickViewModal, QuickViewProduct } from "./quick-view-modal"
-import { WishlistButton } from "./wishlist-button"
-import { StockBadge } from "./stock-badge"
-import { deriveStock } from "@/lib/stock"
+import React from "react"
+import { QuickViewModal } from "./quick-view-modal"
+import { ProductCardCover } from "./product-card/product-card-cover"
+import { MobileCartButton } from "./product-card/mobile-cart-button"
+import { useProductCard } from "@/hooks/use-product-card"
 
 interface TagRef { id: string; name: string; color: string }
 
@@ -24,51 +18,15 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, onImageSettled }) => {
-  const [mounted, setMounted] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [showQuickView, setShowQuickView] = useState(false)
-  const cart = useCart()
-  const { currency, rate } = useCurrency()
-  const compare = useCompare()
-  const inCompare = mounted && !!compare.items.find(p => p.id === product.id)
-  const stock = deriveStock(product.id)
-  const isOutOfStock = stock === 0
-
-  useEffect(() => { setMounted(true) }, [])
-
-  const imageUrl = product?.images?.[0]?.url
-  const validImage = imageUrl?.startsWith("http://") || imageUrl?.startsWith("https://")
-
-  useEffect(() => {
-    if (mounted && !validImage) onImageSettled?.()
-  }, [mounted, validImage, onImageSettled])
-
-  const cartHasProduct = mounted ? cart.items.find(item => item.id === product.id) : null
-
-  const onAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    cart.addItem(product)
-  }
-
-  const onRemoveFromCart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    cart.removeItem(product.id)
-  }
-
-  const handleSettled = () => {
-    setImageLoaded(true)
-    onImageSettled?.()
-  }
-
-  const quickViewProduct: QuickViewProduct = {
-    id: product.id,
-    name: product.name,
-    price: Number(product.price),
-    author: (product as any).author,
-    category: product.category.name,
-    image: imageUrl,
-    tags: (product as any).tags,
-  }
+  const {
+    mounted, imageLoaded, showQuickView, setShowQuickView,
+    currency, rate,
+    inCompare, stock, isOutOfStock,
+    imageUrl, validImage,
+    cartHasProduct,
+    onAddToCart, onRemoveFromCart, handleSettled, toggleCompare,
+    quickViewProduct,
+  } = useProductCard(product, onImageSettled)
 
   return (
     <>
@@ -76,70 +34,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
         href={`/product/${product.id}`}
         className="bg-white group border p-3 rounded-md flex flex-col gap-y-3 hover:shadow-md transition-shadow"
       >
-        <div className="aspect-square bg-gray-100 relative flex items-center justify-center overflow-hidden">
-          {/* Stock badge — top-left corner */}
-          <div className="absolute top-2 left-2 z-10">
-            <StockBadge stock={stock} />
-          </div>
-          {validImage && !imageLoaded && (
-            <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-shimmer bg-[length:200%_100%]" />
-          )}
-          {validImage ? (
-            <NextImage
-              fill
-              src={imageUrl}
-              alt={product.name}
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-              quality={75}
-              className={`aspect-square object-cover transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"}`}
-              priority={priority}
-              onLoad={handleSettled}
-              onError={handleSettled}
-            />
-          ) : (
-            <span className="text-xs text-gray-400">No image</span>
-          )}
-
-          {mounted && (
-            <div className="opacity-0 group-hover:opacity-100 transition absolute w-full px-3 bottom-3">
-              <div className="flex items-center justify-center gap-x-1.5">
-                {/* Quick View */}
-                <Button
-                  onClick={e => { e.preventDefault(); setShowQuickView(true) }}
-                  variant="outline"
-                  className="border-neutral-300 bg-white/90 backdrop-blur-sm text-xs gap-1 px-2"
-                  aria-label="Quick view"
-                >
-                  <Eye size={14} aria-hidden="true" /> Quick view
-                </Button>
-                {/* Cart */}
-                {cartHasProduct ? (
-                  <Button onClick={onRemoveFromCart} variant="outline" className="border-neutral-300 bg-white/90" aria-label="Remove from cart">
-                    <X size={16} aria-hidden="true" />
-                  </Button>
-                ) : (
-                  <Button onClick={onAddToCart} variant="outline" className="border-neutral-300 bg-white/90" aria-label="Add to cart" disabled={isOutOfStock}>
-                    <ShoppingCart size={16} aria-hidden="true" />
-                  </Button>
-                )}
-                {/* Compare */}
-                <Button
-                  onClick={e => { e.preventDefault(); inCompare ? compare.removeItem(product.id) : compare.addItem({ id: product.id, name: product.name, price: Number(product.price), category: product.category.name, author: (product as any).author, image: imageUrl, tags: (product as any).tags }) }}
-                  variant="outline"
-                  className={`border-neutral-300 bg-white/90 ${inCompare ? "bg-primary text-primary-foreground border-primary" : ""}`}
-                  aria-label="Compare"
-                >
-                  <ArrowLeftRight size={16} aria-hidden="true" />
-                </Button>
-                {/* Wishlist */}
-                <WishlistButton
-                  product={{ id: product.id, name: product.name, price: Number(product.price), image: imageUrl ?? "", category: product.category.name, author: (product as any).author }}
-                  size={16}
-                />
-              </div>
-            </div>
-          )}
-        </div>
+        <ProductCardCover
+          imageUrl={imageUrl}
+          validImage={validImage}
+          imageLoaded={imageLoaded}
+          productName={product.name}
+          priority={priority}
+          stock={stock}
+          mounted={mounted}
+          onImageLoad={handleSettled}
+          hoverActionsProps={{
+            onQuickView: () => setShowQuickView(true),
+            cartHasProduct: !!cartHasProduct,
+            isOutOfStock,
+            onAddToCart,
+            onRemoveFromCart,
+            inCompare,
+            onToggleCompare: toggleCompare,
+            wishlistProduct: { id: product.id, name: product.name, price: Number(product.price), image: imageUrl ?? "", category: product.category.name, author: (product as any).author },
+          }}
+        />
 
         <div>
           <h2 className="text-lg font-semibold text-neutral-800">{truncate(product.name, 30)}</h2>
@@ -159,17 +73,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false, on
         </div>
 
         {mounted && (
-          <div className="flex sm:hidden items-center justify-end">
-            {cartHasProduct ? (
-              <Button onClick={onRemoveFromCart} className="flex items-center gap-x-2" aria-label={`Remove ${product.name} from cart`}>
-                Remove from cart <X aria-hidden="true" />
-              </Button>
-            ) : (
-              <Button onClick={onAddToCart} className="flex items-center gap-x-2" aria-label={`Add ${product.name} to cart`} disabled={isOutOfStock}>
-                Add To Cart <ShoppingCart aria-hidden="true" />
-              </Button>
-            )}
-          </div>
+          <MobileCartButton
+            productName={product.name}
+            cartHasProduct={!!cartHasProduct}
+            isOutOfStock={isOutOfStock}
+            onAddToCart={onAddToCart}
+            onRemoveFromCart={onRemoveFromCart}
+          />
         )}
       </Link>
 
