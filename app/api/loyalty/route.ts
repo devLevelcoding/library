@@ -9,7 +9,7 @@ function db() {
   return _db
 }
 
-export async function ensureLoyaltyTables() {
+async function ensureLoyaltyTables() {
   const client = db()
   if (!client) return
   await client.execute(`

@@ -42,7 +42,7 @@ export function StockAlertForm({ productId, productName, defaultEmail = "" }: St
     return (
       <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
         <CheckCircle className="h-4 w-4" />
-        We'll notify you when it's back in stock
+        We&apos;ll notify you when it&apos;s back in stock
       </div>
     )
   }
