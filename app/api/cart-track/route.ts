@@ -76,7 +76,7 @@ export async function GET(req: Request) {
   let sent = 0
 
   for (const row of rows) {
-    const [userId, userEmail, userName, cartData, itemCount, totalUSD] = row
+    const [userId, userEmail, userName, cartData, itemCount, totalUSD] = Array.from(row)
     const items: any[] = JSON.parse(String(cartData))
     const name = String(userName || userEmail)
     const itemList = items.slice(0, 3).map((i: any) => `  • ${i.name} (${i.variantLabel ?? "Paperback"}) — $${Number(i.price).toFixed(2)}`).join("\n")

@@ -36,7 +36,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ product
   let sent = 0
 
   for (const row of rows) {
-    const [id, email] = row
+    const [id, email] = Array.from(row)
     await notify({
       subject: `📦 "${productName}" is back in stock!`,
       body: `Good news! The book you wanted is available again.\n\n"${productName}"\n\nBuy now: ${productUrl}`,

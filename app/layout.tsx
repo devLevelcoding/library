@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/actions/get-current-user'
 import Footer from '@/components/footer'
 import { NavigationProgress } from '@/components/navigation-progress'
 import { CompareBar } from '@/components/compare-bar'
+import { ConciergeWidget } from '@/components/concierge-widget'
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' })
 
@@ -46,6 +47,7 @@ export default async function RootLayout({
         </main>
         <Footer />
         <CompareBar />
+        <ConciergeWidget />
       </body>
     </html>
   )
